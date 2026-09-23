@@ -1,0 +1,6 @@
+{
+  "name": "SkyPulse Weather",
+  "description": "Real-time weather conditions, hourly and 7-day forecast, atmospheric metrics, and global location search based on real GPS location.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
