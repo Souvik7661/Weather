@@ -60,11 +60,24 @@
    - Select **Open** and choose the `Weather` project directory.
    - Allow Gradle sync to complete.
 
-3. **Run on an Emulator or Device:**
-   ```bash
-   ./gradlew installDebug
-   ```
-   Or click **Run 'app'** in Android Studio.
+### Run the Web Companion & Live App
+To run the live web app and companion portal:
+```bash
+# Install dependencies
+npm install
+
+# Start local dev server (Vite)
+npm run dev
+```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 🌐 Web Companion Features
+- **Full 1:1 Live Weather Web App**: Real-time Open-Meteo forecasts, 24-hour frosted glass pill, 7-day forecast, air quality (US AQI), and GPS location detection.
+- **60fps Particle Physics Canvas**: Tokyo rain on glass with gravity drips, Sydney volumetric lightning, New York 3D snow, solar corona, and meteor starfields.
+- **Interactive 3D Phone Mockup**: Live 3D perspective smartphone with real-time UI mirroring and gyroscope mouse tilt tracking.
+- **Interactive Atmospheric Recharts & UV Gauge**: Hourly humidity bezier curves, semi-circular UV gauge, and astronomical moon phase calculator.
 
 ---
 

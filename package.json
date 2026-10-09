@@ -1,0 +1,10 @@
+{
+  "name": "weatherly-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix weatherly run dev",
+    "build": "npm --prefix weatherly run build",
+    "preview": "npm --prefix weatherly run preview"
+  }
+}
