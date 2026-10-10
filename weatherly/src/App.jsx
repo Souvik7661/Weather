@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState } from 
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
 import {
   Activity, ArrowRight, BarChart3, Bell, ChevronDown, ChevronLeft, ChevronRight, Clock, Cloud, CloudFog, CloudLightning,
-  CloudMoon, CloudRain, CloudSnow, CloudSun, CalendarDays, Crown, Droplet, Gauge, Home, Leaf, Lightbulb, Map as MapIcon,
+  CloudMoon, CloudRain, CloudSnow, CloudSun, CalendarDays, Droplet, Gauge, Home, Leaf, Lightbulb, Map as MapIcon,
   MapPin, Maximize2, Minimize2, Moon, Radar as RadarIcon, Search, Settings, Sun, Thermometer, Umbrella, Wind,
 } from 'lucide-react';
 import Scene, { Rain } from './Scene.jsx';
@@ -240,14 +240,9 @@ function Sidebar({ active, onNav, unit }) {
         ))}
       </nav>
       <div className="grow" />
-      <button className="glass pro" onClick={() => onNav('Pro', null)}>
-        <Crown size={20} color="#ffc23d" fill="#ffc23d" fillOpacity={0.4} /> <b>Upgrade to Pro</b>
-        <p>Get 15-day forecasts, weather alerts &amp; more.</p>
-        <ArrowRight size={18} />
-      </button>
       <div className="glass me">
         <div className="avatar"><span>SK</span></div>
-        <div><b>Souvik Kundu</b><small>Free Plan</small></div>
+        <div><b>Souvik Kundu</b></div>
       </div>
     </motion.aside>
   );
@@ -567,7 +562,6 @@ export default function App() {
 
   const goto = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const onNav = (name, target) => {
-    if (name === 'Pro') { setToast('Pro is a demo button. Add your own checkout here.'); return; }
     setActive(name);
     if (name === 'Radar') setMode('radar');
     if (name === 'Maps') setMode('temperature');
