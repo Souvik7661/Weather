@@ -1,22 +1,22 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { motion } from 'framer-motion';
-import { Compass, ExternalLink, Layers, Locate, Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2 } from 'lucide-react';
 import { reverseGeocode } from './weather.js';
 
 const spring = { type: 'spring', stiffness: 420, damping: 34 };
 
 const TILES = {
-  dark: {
-    name: 'Dark',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png',
+  radar: {
+    name: 'Radar',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     options: {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 16,
+      attribution: '&copy; Esri &copy; RainViewer',
     },
+    referenceUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
   },
-  satellite: {
+  temperature: {
     name: 'Satellite',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     options: {
@@ -24,22 +24,20 @@ const TILES = {
       attribution: '&copy; Esri World Imagery',
     },
   },
-  radar: {
-    name: 'Radar',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png',
+  clouds: {
+    name: 'Streets',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     options: {
-      subdomains: 'abcd',
       maxZoom: 19,
-      attribution: '&copy; CARTO &copy; RainViewer',
+      attribution: '&copy; OpenStreetMap contributors',
     },
   },
-  streets: {
-    name: 'Streets',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  wind: {
+    name: 'Topo',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     options: {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 18,
+      attribution: '&copy; Esri',
     },
   },
 };
@@ -50,10 +48,9 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
   const markerRef = useRef(null);
   const radarLayerRef = useRef(null);
   const tileLayerRef = useRef(null);
+  const referenceLayerRef = useRef(null);
 
-  const [mode, setMode] = useState('dark');
-  const [big, setBig] = useState(false);
-  const [locating, setLocating] = useState(false);
+  const [mode, setMode] = useState('radar');
   const [radarPath, setRadarPath] = useState(null);
 
   // Fetch latest RainViewer radar layer
@@ -73,7 +70,6 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
   useEffect(() => {
     if (!containerRef.current) return undefined;
 
-    // Clean up if container was already initialized by Leaflet (prevents "Map container is already initialized" crash)
     if (containerRef.current._leaflet_id) {
       delete containerRef.current._leaflet_id;
     }
@@ -92,36 +88,28 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
     });
     mapRef.current = map;
 
-    // Zoom control in top right
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
     // Initial base tile layer
-    const cfg = TILES[mode] || TILES.dark;
+    const cfg = TILES[mode] || TILES.radar;
     const tileLayer = L.tileLayer(cfg.url, cfg.options).addTo(map);
     tileLayerRef.current = tileLayer;
 
-    // Glowing custom pin
+    // Custom glowing Kolkata location marker pin with label
     const pinIcon = L.divIcon({
-      className: 'weatherly-map-pin',
+      className: 'live-map-pin',
       html: `
-        <div class="pin-halo"></div>
-        <div class="pin-bubble">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="#ff8a3d" stroke="#ffffff" stroke-width="1.8">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-            <circle cx="12" cy="9" r="2.5" fill="#ffffff"/>
-          </svg>
+        <div class="live-pin-beacon"></div>
+        <div class="live-pin-dot"></div>
+        <div class="live-pin-tag">
+          <span>${city.name}</span>
         </div>
       `,
-      iconSize: [32, 42],
-      iconAnchor: [16, 42],
-      popupAnchor: [0, -42],
+      iconSize: [20, 20],
+      iconAnchor: [10, 10],
     });
 
     const marker = L.marker([city.lat, city.lon], { icon: pinIcon }).addTo(map);
-    marker.bindPopup(`<b>${city.name}</b><br/><small>${city.region}</small>`);
     markerRef.current = marker;
 
-    // Ensure map tiles and container measure accurately
     const invalidate = () => {
       try {
         map.invalidateSize();
@@ -137,17 +125,11 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
       ro.observe(containerRef.current);
     }
 
-    // Click anywhere on Earth to select location
-    map.on('click', async (e) => {
-      const { lat, lng } = e.latlng;
-      marker.setLatLng([lat, lng]);
-      marker.bindPopup('<b>Loading weather...</b>').openPopup();
-
-      onToast?.(`Locating ${lat.toFixed(2)}°, ${lng.toFixed(2)}...`);
-      const newPlace = await reverseGeocode(lat, lng);
-      marker.bindPopup(`<b>${newPlace.name}</b><br/><small>${newPlace.region}</small>`).openPopup();
-      onSelectLocation?.(newPlace);
-      onToast?.(`Weather updated for ${newPlace.name}`);
+    // Click on map to open full modal or select location
+    map.on('click', () => {
+      if (onOpenMap) {
+        onOpenMap();
+      }
     });
 
     return () => {
@@ -162,7 +144,7 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
         delete containerRef.current._leaflet_id;
       }
     };
-  }, []); // Run once on mountnt
+  }, []); // Run once on mount
 
   // Update base tile layer on mode change
   useEffect(() => {
@@ -170,23 +152,46 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
     if (!map) return;
 
     if (tileLayerRef.current) {
-      map.removeLayer(tileLayerRef.current);
+      try {
+        map.removeLayer(tileLayerRef.current);
+      } catch (e) {}
+      tileLayerRef.current = null;
     }
-    const cfg = TILES[mode] || TILES.dark;
-    tileLayerRef.current = L.tileLayer(cfg.url, cfg.options).addTo(map);
+    if (referenceLayerRef.current) {
+      try {
+        map.removeLayer(referenceLayerRef.current);
+      } catch (e) {}
+      referenceLayerRef.current = null;
+    }
+
+    const cfg = TILES[mode] || TILES.radar;
+    tileLayerRef.current = L.tileLayer(cfg.url, { ...cfg.options, zIndex: 1 }).addTo(map);
+
+    if (cfg.referenceUrl) {
+      referenceLayerRef.current = L.tileLayer(cfg.referenceUrl, {
+        maxZoom: cfg.options.maxZoom,
+        zIndex: 15,
+      }).addTo(map);
+    }
 
     // Radar precipitation overlay
     if (mode === 'radar' && radarPath) {
       if (radarLayerRef.current) {
-        map.removeLayer(radarLayerRef.current);
+        try {
+          map.removeLayer(radarLayerRef.current);
+        } catch (e) {}
       }
       const rLayer = L.tileLayer(`https://tilecache.rainviewer.com${radarPath}/256/{z}/{x}/{y}/2/1_1.png`, {
-        opacity: 0.75,
-        zIndex: 50,
+        opacity: 0.85,
+        zIndex: 30,
+        maxNativeZoom: 7,
+        maxZoom: 18,
       }).addTo(map);
       radarLayerRef.current = rLayer;
     } else if (radarLayerRef.current) {
-      map.removeLayer(radarLayerRef.current);
+      try {
+        map.removeLayer(radarLayerRef.current);
+      } catch (e) {}
       radarLayerRef.current = null;
     }
   }, [mode, radarPath]);
@@ -200,97 +205,29 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
     const cur = marker.getLatLng();
     if (Math.abs(cur.lat - city.lat) > 0.001 || Math.abs(cur.lng - city.lon) > 0.001) {
       marker.setLatLng([city.lat, city.lon]);
-      marker.bindPopup(`<b>${city.name}</b><br/><small>${city.region}</small>`);
-      map.flyTo([city.lat, city.lon], Math.max(map.getZoom(), 8), { duration: 1.4 });
+      map.flyTo([city.lat, city.lon], 9, { duration: 1.4 });
     }
   }, [city]);
-
-  // Resize map container on expand/contract
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    const t = setTimeout(() => map.invalidateSize(), 300);
-    return () => clearTimeout(t);
-  }, [big]);
-
-  // GPS Locate Current Position
-  const handleLocate = () => {
-    if (!navigator.geolocation) {
-      onToast?.('Geolocation not supported by your browser');
-      return;
-    }
-    setLocating(true);
-    onToast?.('Finding your GPS position...');
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        setLocating(false);
-        const { latitude, longitude } = pos.coords;
-        const map = mapRef.current;
-        if (map) {
-          map.flyTo([latitude, longitude], 11, { duration: 1.5 });
-        }
-        const place = await reverseGeocode(latitude, longitude);
-        onSelectLocation?.(place);
-        onToast?.(`Position found: ${place.name}`);
-      },
-      (err) => {
-        setLocating(false);
-        onToast?.(err.message || 'Unable to retrieve location');
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
-  };
-
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${city.lat},${city.lon}`;
 
   return (
     <div className="realMapCard">
       <header className="mapHeader">
-        <div className="mapTitle" onClick={onOpenMap} style={{ cursor: onOpenMap ? 'pointer' : 'default' }}>
-          <Compass size={20} color="#ffb454" />
-          <h3>Interactive Global Map</h3>
+        <div className="mapTitle">
+          <h3>Live Weather Map</h3>
         </div>
         <div className="mapControls">
-          {onOpenMap && (
-            <button
-              className="openFullMapBtn"
-              onClick={onOpenMap}
-              title="Open full interactive map modal"
-            >
-              <Maximize2 size={14} />
-              <span>Open Map</span>
-            </button>
-          )}
-          <a
-            href={googleMapsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="googleMapsBtn"
-            title="Open in Google Maps"
-          >
-            <span>Google Maps</span>
-            <ExternalLink size={14} />
-          </a>
-          <button
-            className={`mapIconBtn ${locating ? 'spin' : ''}`}
-            onClick={handleLocate}
-            title="Locate my position"
-            aria-label="Locate my position"
-          >
-            <Locate size={18} />
-          </button>
           <button
             className="mapIconBtn"
-            onClick={onOpenMap ? onOpenMap : () => setBig(!big)}
+            onClick={onOpenMap}
             aria-label="Open full map"
             title="Open full map"
           >
-            <Maximize2 size={18} />
+            <Maximize2 size={16} />
           </button>
         </div>
       </header>
 
-      {/* Layer selector tabs */}
+      {/* Layer selector tabs: Radar | Temperature | Clouds | Wind */}
       <div className="mapLayerTabs" role="tablist">
         {Object.entries(TILES).map(([k, item]) => (
           <button
@@ -307,22 +244,19 @@ export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) 
       </div>
 
       {/* Leaflet map viewport */}
-      <motion.div
-        className="mapViewportWrapper"
-        initial={false}
-        animate={{ height: big ? 420 : 210 }}
-        transition={{ type: 'spring', stiffness: 160, damping: 22 }}
-      >
+      <div className="mapViewportWrapper" onClick={onOpenMap} style={{ cursor: 'pointer' }}>
         <div ref={containerRef} className="leafletMapCanvas" />
 
-        {/* Floating coordinates indicator & instructions */}
-        <div className="mapFloatingBar">
-          <span className="coordText">
-            <b>{city.name}</b> • {city.lat.toFixed(2)}°, {city.lon.toFixed(2)}°
-          </span>
-          <span className="mapHelp">Click anywhere to explore</span>
+        {/* Bottom scale gradient bar: Light [===gradient===] Heavy */}
+        <div className="mapBottomBar">
+          <span className="scaleWord">Light</span>
+          <div className="scaleGradient" />
+          <span className="scaleWord">Heavy</span>
+          <button className="mapExpandIcon" onClick={(e) => { e.stopPropagation(); onOpenMap?.(); }} title="Expand Map">
+            <Maximize2 size={13} />
+          </button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

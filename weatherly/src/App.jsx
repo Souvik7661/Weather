@@ -1,166 +1,247 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from 'framer-motion';
 import {
-  Activity, ArrowRight, BarChart3, Bell, ChevronDown, ChevronLeft, ChevronRight, Clock, Cloud, CloudFog, CloudLightning,
-  CloudMoon, CloudRain, CloudSnow, CloudSun, CalendarDays, Droplet, Gauge, Home, Leaf, Lightbulb, Map as MapIcon,
-  MapPin, Maximize2, Minimize2, Moon, Radar as RadarIcon, Search, Settings, Sun, Thermometer, Umbrella, Wind,
+  Activity, ArrowRight, ArrowUpRight, BarChart3, Bell, CalendarDays, ChevronDown, ChevronLeft, ChevronRight,
+  Clock, Cloud, CloudFog, CloudLightning, CloudMoon, CloudRain, CloudSnow, CloudSun, Compass, Droplet,
+  Gauge, Home, Leaf, Lightbulb, Loader2, Map as MapIcon, MapPin, Maximize2, Moon, MoreHorizontal, Navigation,
+  Radar as RadarIcon, Search, Settings, Sparkles, Sun, Thermometer, Umbrella, Wind, X, Zap,
 } from 'lucide-react';
 import Scene, { Rain } from './Scene.jsx';
 import RealMap from './RealMap.jsx';
 import MapModal from './MapModal.jsx';
 import {
-  PRESETS, dayMonth, dayName, fmtClock, fmtDate, fmtDur, fmtHour, fmtTime, geocode, sameDay, useNow, useWeather,
+  PRESETS, dayMonth, dayName, fmtClock, fmtDate, fmtDur, fmtHour, fmtTime, geocode, reverseGeocode, sameDay, useNow, useWeather,
 } from './weather.js';
 
 /* ------------------------------------------------------------------ */
-/*  Shared bits                                                         */
+/*  Shared Context                                                      */
 /* ------------------------------------------------------------------ */
 const UnitCtx = createContext(null);
 const useUnit = () => useContext(UnitCtx);
 
-const container = { hidden: {}, show: { transition: { delayChildren: 0.1 } } };
-const col = { hidden: {}, show: { transition: { staggerChildren: 0.09 } } };
-const rise = {
-  hidden: { opacity: 0, y: 28, scale: 0.97 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 110, damping: 16 } },
+const spring = { type: 'spring', stiffness: 380, damping: 28 };
+const container = { hidden: {}, show: { transition: { staggerChildren: 0.08, delayChildren: 0.05 } } };
+const col = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 90, damping: 18 } },
 };
-const spring = { type: 'spring', stiffness: 420, damping: 34 };
 
-const Card = ({ className = '', children, ...rest }) => (
-  <motion.section variants={rise} className={`glass ${className}`} {...rest}>{children}</motion.section>
-);
-
-function Counter({ value, className }) {
-  const mv = useMotionValue(0);
-  const shown = useTransform(mv, (v) => Math.round(v));
-  useEffect(() => {
-    const c = animate(mv, value ?? 0, { duration: 1.6, ease: [0.16, 1, 0.3, 1] });
-    return () => c.stop();
-  }, [value, mv]);
-  return <motion.span className={className}>{shown}</motion.span>;
-}
-
-function useOutside(ref, cb, on) {
-  useEffect(() => {
-    if (!on) return undefined;
-    const h = (e) => { if (ref.current && !ref.current.contains(e.target)) cb(); };
-    document.addEventListener('pointerdown', h);
-    return () => document.removeEventListener('pointerdown', h);
-  }, [on, ref, cb]);
-}
-
-/* Small filled weather icons */
-function MiniIcon({ kind, day = true, size = 34 }) {
-  const s = size;
-  const sun = { color: '#ffc23d', fill: '#ffc23d', fillOpacity: 0.9, strokeWidth: 1.8 };
-  const cloud = { color: '#e9efff', fill: '#dfe8ff', fillOpacity: 0.95, strokeWidth: 1.6 };
-  const moon = { color: '#9a8cff', fill: '#9a8cff', fillOpacity: 0.85, strokeWidth: 1.8 };
-  const box = { position: 'relative', width: s, height: s, display: 'inline-block' };
-  switch (kind) {
-    case 'clear': return day ? <Sun size={s} {...sun} /> : <Moon size={s} {...moon} />;
-    case 'partly':
-      return day ? (
-        <span style={box}>
-          <Sun size={s * 0.66} style={{ position: 'absolute', left: 0, top: 0 }} {...sun} />
-          <Cloud size={s * 0.84} style={{ position: 'absolute', right: -2, bottom: 0 }} {...cloud} />
-        </span>
-      ) : (
-        <span style={box}>
-          <Moon size={s * 0.66} style={{ position: 'absolute', left: 0, top: 0 }} {...moon} />
-          <Cloud size={s * 0.84} style={{ position: 'absolute', right: -2, bottom: 0 }} {...cloud} />
-        </span>
-      );
-    case 'rain': return <CloudRain size={s} color="#7cb8ff" fill="#cfe6ff" fillOpacity={0.35} strokeWidth={1.7} />;
-    case 'storm': return <CloudLightning size={s} color="#ffd24a" fill="#9aa4d8" fillOpacity={0.4} strokeWidth={1.7} />;
-    case 'snow': return <CloudSnow size={s} color="#d6eaff" fill="#d6eaff" fillOpacity={0.3} strokeWidth={1.7} />;
-    case 'fog': return <CloudFog size={s} color="#c9d3ee" strokeWidth={1.7} />;
-    default: return <Cloud size={s} {...cloud} />;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Big 3D-ish weather orb                                              */
-/* ------------------------------------------------------------------ */
-function CloudShape({ dark, style }) {
+function Card({ className = '', children, id, onClick, style }) {
   return (
-    <div className={`cloudShape ${dark ? 'dark' : ''}`} style={style}>
-      <i /><i /><i /><b />
-    </div>
+    <motion.section
+      id={id}
+      className={`glass ${className}`}
+      variants={col}
+      onClick={onClick}
+      style={style}
+    >
+      {children}
+    </motion.section>
   );
 }
 
-function Orb({ kind, isDay }) {
-  const sunny = isDay && (kind === 'clear' || kind === 'partly');
-  const moony = !isDay && (kind === 'clear' || kind === 'partly');
-  const wet = kind === 'rain' || kind === 'storm';
-  const hasCloud = kind !== 'clear';
-  return (
-    <div className={`orb ${kind}`}>
-      {sunny && <motion.div className="sunBall" animate={{ scale: [1, 1.06, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} />}
-      {moony && (
-        <motion.svg className="moonBall" viewBox="0 0 100 100" animate={{ rotate: [-4, 4, -4] }} transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}>
-          <defs><radialGradient id="mg" cx="0.35" cy="0.3"><stop offset="0" stopColor="#fff" /><stop offset="1" stopColor="#b9b2ff" /></radialGradient></defs>
-          <path d="M62 10a42 42 0 1 0 28 62A34 34 0 0 1 62 10z" fill="url(#mg)" />
-        </motion.svg>
-      )}
-      {hasCloud && (
-        <motion.div className="cloudWrap" animate={{ y: [0, -7, 0], x: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}>
-          {kind === 'cloudy' && <CloudShape style={{ position: 'absolute', left: 30, bottom: 26, transform: 'scale(.7)', opacity: 0.8 }} dark />}
-          <CloudShape dark={wet || kind === 'cloudy'} />
-          {wet && [8, 24, 42, 60, 78, 96, 114].map((l, i) => (
-            <i key={l} className="rainDrop" style={{ left: l, animationDelay: `${(i % 4) * 0.22}s` }} />
-          ))}
-          {kind === 'storm' && (
-            <svg className="bolt" viewBox="0 0 24 40"><path d="M14 0 2 22h8l-3 18L22 16h-9z" fill="#ffe27a" /></svg>
-          )}
-          {kind === 'snow' && [14, 36, 58, 80, 102].map((l, i) => <i key={l} className="flake" style={{ left: l, animationDelay: `${i * 0.5}s` }} />)}
-          {kind === 'fog' && [0, 1, 2].map((i) => <i key={i} className="fogBar" style={{ top: 80 + i * 12, animationDelay: `${i * 0.8}s` }} />)}
-        </motion.div>
-      )}
-    </div>
-  );
+function Counter({ value, className = '' }) {
+  const [disp, setDisp] = useState(value);
+  const prev = useRef(value);
+  const red = useReducedMotion();
+
+  useEffect(() => {
+    if (red) { setDisp(value); return; }
+    const ctrl = animate(prev.current, value, {
+      duration: 0.8,
+      ease: [0.16, 1, 0.3, 1],
+      onUpdate: (v) => setDisp(Math.round(v)),
+    });
+    prev.current = value;
+    return () => ctrl.stop();
+  }, [value, red]);
+
+  return <span className={className}>{disp}</span>;
+}
+
+function MiniIcon({ kind, day = true, size = 28 }) {
+  const colSun = '#ffbe3d';
+  const colCloud = '#d6e2ff';
+  const colRain = '#5b98ff';
+
+  if (kind === 'clear') return day ? <Sun size={size} color={colSun} fill={colSun} fillOpacity={0.3} /> : <Moon size={size} color="#ccd6f6" fill="#ccd6f6" fillOpacity={0.2} />;
+  if (kind === 'partly') return day ? <CloudSun size={size} color={colCloud} /> : <CloudMoon size={size} color={colCloud} />;
+  if (kind === 'rain') return <CloudRain size={size} color={colRain} />;
+  if (kind === 'storm') return <CloudLightning size={size} color="#f5b842" />;
+  if (kind === 'snow') return <CloudSnow size={size} color="#e1ecfc" />;
+  if (kind === 'fog') return <CloudFog size={size} color="#a0aec0" />;
+  return <Cloud size={size} color={colCloud} />;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Top bar                                                             */
+/*  Topbar                                                              */
 /* ------------------------------------------------------------------ */
-function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread, setUnread }) {
+/*  Topbar                                                              */
+/* ------------------------------------------------------------------ */
+function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread, setUnread, onToast }) {
   const [q, setQ] = useState('');
   const [res, setRes] = useState([]);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [highlightIdx, setHighlightIdx] = useState(-1);
   const [bell, setBell] = useState(false);
-  const sRef = useRef(null); const lRef = useRef(null); const bRef = useRef(null);
+  const sRef = useRef(null);
+  const lRef = useRef(null);
+  const bRef = useRef(null);
 
   useEffect(() => {
-    if (q.trim().length < 2) { setRes([]); return undefined; }
-    const ac = new AbortController();
-    const id = setTimeout(() => geocode(q, ac.signal).then(setRes).catch(() => {}), 350);
-    return () => { clearTimeout(id); ac.abort(); };
+    if (q.trim().length < 2) {
+      setRes([]);
+      setIsSearching(false);
+      setHighlightIdx(-1);
+      return undefined;
+    }
+    setIsSearching(true);
+    const id = setTimeout(async () => {
+      try {
+        const hits = await geocode(q);
+        setRes(hits);
+        setHighlightIdx(hits.length > 0 ? 0 : -1);
+      } catch (e) {
+        console.error('Geocode search error:', e);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 250);
+    return () => clearTimeout(id);
   }, [q]);
 
-  useOutside(sRef, () => setRes([]), res.length > 0);
-  useOutside(lRef, () => setLocOpen(false), locOpen);
-  useOutside(bRef, () => setBell(false), bell);
+  useEffect(() => {
+    const out = (e) => {
+      if (sRef.current && !sRef.current.contains(e.target)) setSearchOpen(false);
+      if (lRef.current && !lRef.current.contains(e.target)) setLocOpen(false);
+      if (bRef.current && !bRef.current.contains(e.target)) setBell(false);
+    };
+    window.addEventListener('click', out);
+    return () => window.removeEventListener('click', out);
+  }, [setLocOpen]);
 
-  const pick = (c) => { setCity(c); setQ(''); setRes([]); setLocOpen(false); };
-  const { h, m, ap } = fmtClock(now);
-  const list = PRESETS.some((p) => p.name === city.name) ? PRESETS : [city, ...PRESETS];
+  const pick = (place) => {
+    setCity(place);
+    setQ('');
+    setRes([]);
+    setSearchOpen(false);
+    setLocOpen(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightIdx((prev) => (res.length ? (prev + 1) % res.length : -1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightIdx((prev) => (res.length ? (prev - 1 + res.length) % res.length : -1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (highlightIdx >= 0 && res[highlightIdx]) {
+        pick(res[highlightIdx]);
+      } else if (res.length > 0) {
+        pick(res[0]);
+      } else if (q.trim()) {
+        geocode(q).then((hits) => {
+          if (hits.length > 0) pick(hits[0]);
+        });
+      }
+    } else if (e.key === 'Escape') {
+      setSearchOpen(false);
+    }
+  };
+
+  const handleCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      onToast?.('Geolocation not supported by your browser');
+      return;
+    }
+    onToast?.('Detecting your GPS location...');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+        const place = await reverseGeocode(lat, lon);
+        pick(place);
+        onToast?.(`Located: ${place.name}`);
+      },
+      (err) => {
+        onToast?.(`GPS error: ${err.message}`);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
+
+  const timeStr = fmtTime(now);
 
   return (
-    <motion.header variants={rise} className="top">
-      <div className="searchWrap" ref={sRef}>
-        <label className="glass search">
-          <Search size={20} />
+    <motion.header className="top" variants={col}>
+      {/* 1. Global Search Bar with Live Worldwide Autocomplete */}
+      <div className="searchWrap searchContainer" ref={sRef}>
+        <div className="glass search">
+          {isSearching ? (
+            <Loader2 size={18} className="searchIcon searchSpin" />
+          ) : (
+            <Search size={18} className="searchIcon" />
+          )}
           <input
-            value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search city, state or country..."
-            onKeyDown={(e) => { if (e.key === 'Enter' && res[0]) pick(res[0]); }} aria-label="Search for a place"
+            placeholder="Search any place in the world (e.g. Tokyo, Honolulu, Kolkata, Paris)..."
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setSearchOpen(true);
+            }}
+            onFocus={() => {
+              if (q.trim().length >= 2 || res.length > 0) setSearchOpen(true);
+            }}
+            onKeyDown={handleKeyDown}
+            aria-label="Search place worldwide"
+            aria-expanded={searchOpen && res.length > 0}
           />
-        </label>
+          {q.length > 0 && (
+            <button
+              className="searchClearBtn"
+              onClick={() => {
+                setQ('');
+                setRes([]);
+                setSearchOpen(false);
+              }}
+              title="Clear search"
+            >
+              <X size={15} />
+            </button>
+          )}
+        </div>
+
+        {/* Worldwide Autocomplete Dropdown anchored directly below search bar */}
         <AnimatePresence>
-          {res.length > 0 && (
-            <motion.ul className="glass drop" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }}>
-              {res.map((r) => (
-                <li key={`${r.lat}${r.lon}`}>
-                  <button onClick={() => pick(r)}><MapPin size={16} /><span>{r.name}<small>{r.region}</small></span></button>
+          {searchOpen && (res.length > 0 || isSearching) && (
+            <motion.ul
+              className="glass drop searchDrop"
+              initial={{ opacity: 0, y: -6, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.16 }}
+            >
+              <li className="dropHeader">
+                <span>{isSearching ? 'Searching worldwide database...' : `${res.length} global locations found`}</span>
+                <span className="dropHint">Press Enter to select</span>
+              </li>
+              {res.map((p, idx) => (
+                <li key={`${p.name}-${p.lat}-${p.lon}-${idx}`}>
+                  <button
+                    onClick={() => pick(p)}
+                    className={`dropItem searchItem ${idx === highlightIdx ? 'highlight' : ''}`}
+                    onMouseEnter={() => setHighlightIdx(idx)}
+                  >
+                    <span className="dropFlag">{p.flag || '📍'}</span>
+                    <div className="dropInfo">
+                      <strong className="dropName">{p.name}</strong>
+                      <small className="dropRegion">{p.region}</small>
+                    </div>
+                    <span className="dropCoords">{p.lat.toFixed(2)}°, {p.lon.toFixed(2)}°</span>
+                  </button>
                 </li>
               ))}
             </motion.ul>
@@ -168,18 +249,56 @@ function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread,
         </AnimatePresence>
       </div>
 
+      {/* 2. Location Dropdown Pill (Iconic Hubs + GPS Geolocation) */}
       <div className="searchWrap" ref={lRef}>
-        <button className="glass locBtn" onClick={() => setLocOpen(!locOpen)} aria-expanded={locOpen}>
-          <MapPin size={20} className="pin" />
-          <span>{city.name}, {city.region.split(', ').pop()}</span>
-          <motion.span animate={{ rotate: locOpen ? 180 : 0 }}><ChevronDown size={20} /></motion.span>
+        <button
+          className="glass locBtn"
+          onClick={() => setLocOpen(!locOpen)}
+          aria-expanded={locOpen}
+          title="Select location"
+        >
+          <span className="locFlag">{city.flag || '📍'}</span>
+          <span className="locText">{city.name}, {city.region.split(', ').pop()}</span>
+          <motion.span animate={{ rotate: locOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+            <ChevronDown size={16} />
+          </motion.span>
         </button>
+
         <AnimatePresence>
           {locOpen && (
-            <motion.ul className="glass drop" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }}>
-              {list.map((p) => (
-                <li key={p.name}>
-                  <button onClick={() => pick(p)} className={p.name === city.name ? 'on' : ''}><MapPin size={16} /><span>{p.name}<small>{p.region}</small></span></button>
+            <motion.ul
+              className="glass drop presetsDrop"
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+            >
+              <li className="dropHeader">
+                <span>Worldwide Hubs</span>
+              </li>
+              <li>
+                <button onClick={handleCurrentLocation} className="dropItem gpsItem">
+                  <Navigation size={15} color="#5b98ff" />
+                  <div className="dropInfo">
+                    <strong style={{ color: '#8bb7ff' }}>Use Current GPS Location</strong>
+                    <small>Auto-detect latitude & longitude</small>
+                  </div>
+                </button>
+              </li>
+              <div className="dropDivider" />
+              {PRESETS.map((p) => (
+                <li key={`${p.name}-${p.lat}`}>
+                  <button
+                    onClick={() => pick(p)}
+                    className={`dropItem presetItem ${p.name === city.name ? 'on' : ''}`}
+                  >
+                    <span className="dropFlag">{p.flag || '📍'}</span>
+                    <div className="dropInfo">
+                      <strong className="dropName">{p.name}</strong>
+                      <small className="dropRegion">{p.region}</small>
+                    </div>
+                    {p.name === city.name && <span className="activeDot" />}
+                  </button>
                 </li>
               ))}
             </motion.ul>
@@ -187,27 +306,33 @@ function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread,
         </AnimatePresence>
       </div>
 
+      {/* 3. Date & Time Pill */}
       <div className="glass dateChip">
-        <div>
+        <div className="dateChipInner">
           <span>{fmtDate(now)}</span>
-          <strong>{h}<i className="colon">:</i>{m} {ap}</strong>
+          <strong>{timeStr}</strong>
         </div>
-        <span className={`live ${live ? 'on' : ''}`} title={live ? 'Live data' : 'Demo data (offline)'}><i />{live ? 'Live' : 'Demo'}</span>
       </div>
 
+      {/* 4. Bell Notification Button */}
       <div className="searchWrap" ref={bRef}>
         <motion.button
-          className="glass bellBtn" aria-label="Notifications" onClick={() => { setBell(!bell); setUnread(false); }}
-          animate={unread ? { rotate: [0, 16, -14, 9, -5, 0] } : {}} transition={{ duration: 0.9, repeat: Infinity, repeatDelay: 5 }}
+          className="glass bellBtn"
+          aria-label="Notifications"
+          onClick={() => { setBell(!bell); setUnread(false); }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <Bell size={22} />
+          <Bell size={20} />
           {unread && <span className="dot" />}
         </motion.button>
         <AnimatePresence>
           {bell && (
             <motion.div className="glass drop bellPop" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }}>
-              <h4>Alerts</h4>
-              {alerts.map((a) => <p key={a.title}><strong>{a.title}</strong>{a.text}</p>)}
+              <h4>Weather Alerts</h4>
+              {alerts.length ? alerts.map((a) => (
+                <p key={a.title}><strong>{a.title}</strong>{a.text}</p>
+              )) : <p>No severe weather warnings active.</p>}
             </motion.div>
           )}
         </AnimatePresence>
@@ -220,42 +345,67 @@ function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread,
 /*  Sidebar                                                             */
 /* ------------------------------------------------------------------ */
 const NAV = [
-  ['Home', Home, 'top'], ['Forecast', CloudSun, 'week'], ['Maps', MapIcon, 'map'], ['Air Quality', Gauge, 'aqi'],
-  ['Radar', RadarIcon, 'map'], ['Locations', MapPin, 'loc'], ['Insights', BarChart3, 'insights'], ['Settings', Settings, 'settings'],
+  ['Home', Home, 'top'],
+  ['Forecast', CloudSun, 'week'],
+  ['Maps', MapIcon, 'map'],
+  ['Air Quality', Gauge, 'aqi'],
+  ['Radar', RadarIcon, 'map'],
+  ['Locations', MapPin, 'loc'],
+  ['Insights', BarChart3, 'insights'],
+  ['Settings', Settings, 'settings'],
 ];
 
 function Sidebar({ active, onNav, unit }) {
   return (
     <motion.aside className="glass side" initial={{ opacity: 0, x: -36 }} animate={{ opacity: 1, x: 0 }} transition={{ type: 'spring', stiffness: 90, damping: 16 }}>
+      {/* Brand Logo */}
       <div className="logo">
-        <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}><Cloud size={42} fill="#8aa6ff" color="#cfe0ff" strokeWidth={1.4} /></motion.div>
-        <div><b>Weatherly</b><small>See Beyond the Sky</small></div>
+        <div className="logoBadge">
+          <Cloud size={24} fill="#8aa6ff" color="#cfe0ff" strokeWidth={1.6} />
+        </div>
+        <div className="logoText">
+          <b>Weatherly</b>
+          <small>See Beyond the Sky</small>
+        </div>
       </div>
+
+      {/* Nav List */}
       <nav>
         {NAV.map(([name, Icon, target]) => (
           <button key={name} className={active === name ? 'on' : ''} onClick={() => onNav(name, target)}>
             {active === name && <motion.span layoutId="navPill" className="navPill" transition={spring} />}
-            <Icon size={22} /><span>{name}</span>
+            <Icon size={20} />
+            <span>{name}</span>
             {name === 'Settings' && <em>°{unit}</em>}
           </button>
         ))}
       </nav>
+
       <div className="grow" />
+
+      {/* Profile Card */}
       <div className="glass me">
         <div className="avatar"><span>SK</span></div>
-        <div><b>Souvik Kundu</b></div>
+        <div className="meInfo">
+          <b>Souvik Kundu</b>
+        </div>
       </div>
     </motion.aside>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Hero                                                                */
+/*  Hero Section                                                        */
 /* ------------------------------------------------------------------ */
 const periodOf = (h) => (h < 5 ? 'night' : h < 12 ? 'morning' : h < 17 ? 'afternoon' : h < 21 ? 'evening' : 'night');
 const TAIL = {
-  partly: 'with scattered clouds across the sky', clear: 'under clear skies', cloudy: 'beneath a blanket of clouds',
-  rain: 'with rain falling nearby', storm: 'with thunderstorms in the area', snow: 'with snow in the air', fog: 'wrapped in a soft fog',
+  partly: 'with scattered clouds across the sky',
+  clear: 'under clear skies',
+  cloudy: 'beneath a blanket of clouds',
+  rain: 'with rain falling nearby',
+  storm: 'with thunderstorms in the area',
+  snow: 'with snow in the air',
+  fog: 'wrapped in a soft fog',
 };
 const feelWord = (t) => (t >= 31 ? 'hot' : t >= 24 ? 'warm and pleasant' : t >= 16 ? 'mild' : t >= 8 ? 'cool' : 'cold');
 const uvLabel = (u) => (u < 3 ? 'Low' : u < 6 ? 'Moderate' : u < 8 ? 'High' : 'Very High');
@@ -264,105 +414,145 @@ function Hero({ city, data, now, day, isDay, onCity }) {
   const { t, unit, spd, spdUnit } = useUnit();
   const c = data.current;
   const desc = `A ${feelWord(c.temp)} ${periodOf(now.getUTCHours())} ${TAIL[c.kind] || ''}.`;
+
   const stats = [
-    { Icon: Thermometer, color: '#ff6b6b', label: 'Feels Like', value: `${t(c.feels)}°${unit}` },
-    { Icon: Droplet, color: '#59a8ff', label: 'Humidity', value: `${Math.round(c.humidity)}%` },
-    { Icon: Wind, color: '#4fd1ff', label: 'Wind', value: `${spd(c.wind)} ${spdUnit}` },
-    { Icon: Sun, color: '#ffc23d', label: 'UV Index', value: Math.round(c.uv), sub: uvLabel(c.uv) },
+    { Icon: Thermometer, color: '#ff6b6b', bg: 'rgba(255, 107, 107, 0.22)', label: 'Feels Like', value: `${t(c.feels)}°${unit}` },
+    { Icon: Droplet, color: '#59a8ff', bg: 'rgba(89, 168, 255, 0.22)', label: 'Humidity', value: `${Math.round(c.humidity)}%` },
+    { Icon: Wind, color: '#4fd1ff', bg: 'rgba(79, 209, 255, 0.22)', label: 'Wind', value: `${spd(c.wind)} ${spdUnit}` },
+    { Icon: Sun, color: '#ffc23d', bg: 'rgba(255, 194, 61, 0.22)', label: 'UV Index', value: `${Math.round(c.uv)}`, sub: uvLabel(c.uv) },
   ];
+
   return (
-    <Card className="hero">
-      <div className="heroHead">
-        <AnimatePresence mode="wait">
-          <motion.h1 key={city.name} initial={{ opacity: 0, y: 14, filter: 'blur(8px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -14, filter: 'blur(8px)' }} transition={{ duration: 0.35 }}>
-            {city.name}
-          </motion.h1>
-        </AnimatePresence>
-        <button className="iconBtn" onClick={onCity} aria-label="Change city"><ChevronDown size={24} /></button>
-      </div>
-      <p className="region">{city.region}</p>
-
-      <div className="temp">
-        <Counter value={t(c.temp)} className="deg" />
-        <span className="unit">°{unit}</span>
-      </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={c.label} initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} transition={{ duration: 0.3 }}>
-          <h2 className="cond">{c.label}</h2>
-          <p className="desc">{desc}</p>
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="stats">
-        {stats.map(({ Icon, color, label, value, sub }, i) => (
-          <motion.div key={label} className="chip" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 + i * 0.08, type: 'spring', stiffness: 120, damping: 14 }} whileHover={{ y: -4 }}>
-            <Icon size={28} color={color} strokeWidth={1.8} />
-            <div><small>{label}</small><b>{value}</b>{sub && <em>{sub}</em>}</div>
-          </motion.div>
-        ))}
+    <motion.section className="heroCard" id="hero" variants={col}>
+      <div className="heroTop">
+        <div className="heroTitleRow" onClick={onCity} style={{ cursor: 'pointer' }}>
+          <AnimatePresence mode="wait">
+            <motion.h1
+              key={city.name}
+              initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, y: -10, filter: 'blur(6px)' }}
+              transition={{ duration: 0.3 }}
+            >
+              {city.name}
+            </motion.h1>
+          </AnimatePresence>
+          <ChevronDown size={20} className="heroChevron" />
+        </div>
+        <p className="heroRegion">{city.region}</p>
       </div>
 
-      <div className="glass orbCard">
-        <Orb kind={c.kind} isDay={isDay} />
-        <div className="glass orbPill">
-          <MiniIcon kind={c.kind} day={isDay} size={30} />
-          <div><b>{c.label}</b><small>{t(c.temp)}°{unit} | {t(day.lo)}° - {t(day.hi)}°</small></div>
+      <div className="heroTempRow">
+        <div className="heroTemp">
+          <Counter value={t(c.temp)} className="tempDigits" />
+          <span className="tempUnit">°{unit}</span>
         </div>
       </div>
-    </Card>
+
+      <div className="heroCondBlock">
+        <h2 className="heroCond">{c.label}</h2>
+        <p className="heroDesc">{desc}</p>
+      </div>
+
+      {/* 4 Metric Glassy Pills */}
+      <div className="heroStats">
+        {stats.map(({ Icon, color, bg, label, value, sub }) => (
+          <div key={label} className="statPill">
+            <div className="statIconCircle" style={{ background: bg, color }}>
+              <Icon size={18} strokeWidth={2} />
+            </div>
+            <div className="statText">
+              <small>{label}</small>
+              <b>
+                {value} {sub && <span className="statSub">{sub}</span>}
+              </b>
+            </div>
+          </div>
+        ))}
+      </div>
+    </motion.section>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  Hourly + weekly                                                     */
+/*  Hourly Forecast                                                     */
 /* ------------------------------------------------------------------ */
 function Hourly({ list, current }) {
   const { t } = useUnit();
   const [sel, setSel] = useState(0);
   const [wrap, setWrap] = useState(false);
   const ref = useRef(null);
-  const scroll = (d) => ref.current?.scrollBy({ left: d * 340, behavior: 'smooth' });
+  const scroll = (d) => ref.current?.scrollBy({ left: d * 300, behavior: 'smooth' });
+
   return (
     <Card className="hourly" id="hourly" layout>
-      <header>
-        <h3><Clock size={20} /> Hourly Forecast</h3>
-        <button className="seeAll" onClick={() => setWrap(!wrap)}>{wrap ? 'Show less' : 'See All'} <ChevronRight size={16} style={{ transform: wrap ? 'rotate(90deg)' : 'none' }} /></button>
+      <header className="hourlyHeader">
+        <div className="hourlyTitle">
+          <Clock size={18} className="mut" />
+          <h3>Hourly Forecast</h3>
+        </div>
+        <button className="seeAllBtn" onClick={() => setWrap(!wrap)}>
+          {wrap ? 'Show less' : 'See All'} <ChevronRight size={15} style={{ transform: wrap ? 'rotate(90deg)' : 'none' }} />
+        </button>
       </header>
-      <div className="hrow">
+
+      <div className="hourlyScrollContainer">
         <div ref={ref} className={`hours ${wrap ? 'wrap' : ''}`}>
           {list.map((h, i) => (
-            <motion.button layout="position" key={h.time.getTime()} className={`hour ${sel === i ? 'on' : ''}`} onClick={() => setSel(i)} whileTap={{ scale: 0.95 }}>
+            <motion.button
+              layout="position"
+              key={h.time.getTime()}
+              className={`hour ${sel === i ? 'on' : ''} ${i === 0 ? 'nowCard' : ''}`}
+              onClick={() => setSel(i)}
+              whileTap={{ scale: 0.95 }}
+            >
               {sel === i && <motion.span layoutId="hourSel" className="hourBg" transition={spring} />}
               <span className="hl">{i === 0 ? 'Now' : fmtHour(h.time)}</span>
-              <MiniIcon kind={h.kind} day={h.isDay} size={34} />
+              <MiniIcon kind={h.kind} day={h.isDay} size={30} />
               <span className="ht">{t(i === 0 ? current.temp : h.temp)}°</span>
             </motion.button>
           ))}
         </div>
         {!wrap && (
-          <div className="arrows">
-            <button onClick={() => scroll(1)} aria-label="Later hours"><ChevronRight size={20} /></button>
-            <button onClick={() => scroll(-1)} aria-label="Earlier hours"><ChevronLeft size={20} /></button>
-          </div>
+          <button className="hourScrollNext" onClick={() => scroll(1)} aria-label="Next hours">
+            <ChevronRight size={18} />
+          </button>
         )}
       </div>
     </Card>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  7-Day Forecast                                                      */
+/* ------------------------------------------------------------------ */
 function Week({ daily }) {
   const { t } = useUnit();
   const [sel, setSel] = useState(0);
+
   return (
-    <Card className="week" id="week">
-      <header><h3><CalendarDays size={20} /> 7-Day Forecast</h3><ArrowRight size={18} className="mut" /></header>
+    <Card className="weekCard" id="week">
+      <header className="weekHeader">
+        <div className="weekTitle">
+          <CalendarDays size={18} className="mut" />
+          <h3>7-Day Forecast</h3>
+        </div>
+        <ArrowUpRight size={18} className="mut" />
+      </header>
       <div className="days">
         {daily.map((d, i) => (
-          <motion.button key={d.date.getTime()} className={`day ${sel === i ? 'on' : ''}`} onClick={() => setSel(i)} whileTap={{ scale: 0.95 }}>
+          <motion.button
+            key={d.date.getTime()}
+            className={`day ${sel === i ? 'on' : ''}`}
+            onClick={() => setSel(i)}
+            whileTap={{ scale: 0.96 }}
+          >
             {sel === i && <motion.span layoutId="daySel" className="dayBg" transition={spring} />}
-            <b>{dayName(d.date)}</b><small>{dayMonth(d.date)}</small>
-            <MiniIcon kind={d.kind} day size={32} />
-            <strong>{t(d.hi)}°</strong><em>{t(d.lo)}°</em>
+            <b className="dayName">{dayName(d.date)}</b>
+            <small className="dayDate">{dayMonth(d.date)}</small>
+            <MiniIcon kind={d.kind} day size={30} />
+            <strong className="dayHi">{t(d.hi)}°</strong>
+            <em className="dayLo">{t(d.lo)}°</em>
           </motion.button>
         ))}
       </div>
@@ -371,7 +561,75 @@ function Week({ daily }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Sun arc                                                             */
+/*  Air Quality Index                                                   */
+/* ------------------------------------------------------------------ */
+const aqiInfo = (v) => (v <= 50 ? ['Excellent', '#3be59a', '#16c7a5'] : v <= 100 ? ['Good', '#53e08a', '#1fd1b0'] : v <= 150 ? ['Moderate', '#ffd23f', '#ffa53a'] : v <= 200 ? ['Poor', '#ff8a3d', '#ff5a4a'] : ['Very Poor', '#ff4d5e', '#c2185b']);
+
+function AQI({ aqi }) {
+  const v = Math.round(aqi.value ?? 78);
+  const [label, c1, c2] = aqiInfo(v);
+  const frac = Math.min(1, v / 120);
+  const arc = 'M35.4 114.6 A56 56 0 1 1 114.6 114.6';
+  const tiles = [
+    ['PM2.5', aqi.pm25 || 28],
+    ['PM10', aqi.pm10 || 54],
+    ['NO₂', aqi.no2 || 18],
+    ['SO₂', aqi.so2 || 6],
+  ];
+
+  return (
+    <Card className="aqiCard" id="aqi">
+      <header className="aqiHeader">
+        <div className="aqiTitle">
+          <Leaf size={18} color="#3be59a" />
+          <h3>Air Quality Index</h3>
+        </div>
+        <ArrowUpRight size={18} className="mut" />
+      </header>
+
+      <div className="gaugeWrapper">
+        <div className="gaugeSvgBox">
+          <svg viewBox="0 0 150 150" className="gaugeSvg">
+            <defs>
+              <linearGradient id="aqiGrad" x1="0" x2="1" y1="1" y2="0">
+                <stop offset="0%" stopColor="#3be59a" />
+                <stop offset="100%" stopColor="#53e08a" />
+              </linearGradient>
+            </defs>
+            <path d={arc} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="10" strokeLinecap="round" />
+            <motion.path
+              d={arc}
+              fill="none"
+              stroke="url(#aqiGrad)"
+              strokeWidth="10"
+              strokeLinecap="round"
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: frac }}
+              transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
+            />
+          </svg>
+          <div className="gaugeCenter">
+            <Leaf size={22} color="#3be59a" className="gaugeLeaf" />
+            <Counter value={v} className="gaugeValue" />
+            <span className="gaugeStatus">{label}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="pollutantsRow">
+        {tiles.map(([k, val]) => (
+          <div key={k} className="pollutantItem">
+            <small>{k}</small>
+            <b>{val}</b>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  Sun Schedule Arc                                                    */
 /* ------------------------------------------------------------------ */
 function SunCard({ day, now }) {
   const total = day.sunset - day.sunrise;
@@ -382,25 +640,52 @@ function SunCard({ day, now }) {
   const [sx, sy] = pt(p);
   const up = raw > 0 && raw < 1;
   const d = 'M40 100 Q190 -50 340 100';
+
   return (
-    <Card className="sunCard">
-      <div className="cardTools"><Sun size={18} className="mut" /><button className="iconBtn" aria-label="More options"><span className="dots">•••</span></button></div>
-      <svg viewBox="0 0 380 118" className="arc" role="img" aria-label="Sun position today">
+    <Card className="sunScheduleCard">
+      <div className="sunScheduleHeader">
+        <Sun size={18} color="#ffb454" />
+        <button className="iconBtn" aria-label="More options">
+          <MoreHorizontal size={18} />
+        </button>
+      </div>
+
+      <svg viewBox="0 0 380 118" className="arcSvg" role="img" aria-label="Sun position today">
         <defs>
-          <linearGradient id="arcG" x1="0" x2="1"><stop offset="0" stopColor="#ffb454" /><stop offset="1" stopColor="#ff7e5f" /></linearGradient>
-          <filter id="sunGlow"><feGaussianBlur stdDeviation="4" /></filter>
+          <linearGradient id="arcG" x1="0" x2="1">
+            <stop offset="0" stopColor="#ffb454" />
+            <stop offset="100" stopColor="#ff7e5f" />
+          </linearGradient>
+          <filter id="sunGlow"><feGaussianBlur stdDeviation="5" /></filter>
         </defs>
-        <line x1="14" y1="100" x2="366" y2="100" stroke="rgba(255,255,255,.14)" />
-        <path d={d} pathLength="1" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.4" strokeDasharray="0.012 0.018" />
-        <motion.path d={d} fill="none" stroke="url(#arcG)" strokeWidth="2.6" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: p }} transition={{ duration: 2, ease: 'easeOut', delay: 0.6 }} />
+        <line x1="20" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,.16)" />
+        <path d={d} pathLength="1" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1.5" strokeDasharray="0.012 0.018" />
+        <motion.path
+          d={d}
+          fill="none"
+          stroke="url(#arcG)"
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: p }}
+          transition={{ duration: 2, ease: 'easeOut', delay: 0.5 }}
+        />
         <circle cx="40" cy="100" r="5" fill="#ffb454" />
         <path transform="translate(331 91) scale(.17)" d="M62 10a42 42 0 1 0 28 62A34 34 0 0 1 62 10z" fill="#b9c4ff" />
         <motion.g initial={false} animate={{ opacity: up ? 1 : 0 }}>
-          <motion.circle initial={false} animate={{ cx: sx, cy: sy, r: [14, 22, 14] }} transition={{ r: { duration: 3, repeat: Infinity }, cx: { duration: 2 }, cy: { duration: 2 } }} fill="#ffb454" opacity="0.5" filter="url(#sunGlow)" />
+          <motion.circle
+            initial={false}
+            animate={{ cx: sx, cy: sy, r: [14, 22, 14] }}
+            transition={{ r: { duration: 3, repeat: Infinity }, cx: { duration: 2 }, cy: { duration: 2 } }}
+            fill="#ffb454"
+            opacity="0.5"
+            filter="url(#sunGlow)"
+          />
           <motion.circle initial={false} animate={{ cx: sx, cy: sy }} transition={{ duration: 2 }} r="9" fill="#ffd36e" stroke="#fff3c4" strokeWidth="2" />
         </motion.g>
       </svg>
-      <div className="sunTimes">
+
+      <div className="sunScheduleTimes">
         <div><b>{fmtTime(day.sunrise)}</b><small>Sunrise</small></div>
         <div><b>{fmtDur(day.daylight)}</b><small>Daylight</small></div>
         <div><b>{fmtTime(day.sunset)}</b><small>Sunset</small></div>
@@ -410,7 +695,7 @@ function SunCard({ day, now }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Interactive Global Map                                              */
+/*  Live Weather Map Card                                               */
 /* ------------------------------------------------------------------ */
 function MapCard({ city, onSelectLocation, onToast, onOpenMap }) {
   return (
@@ -421,13 +706,14 @@ function MapCard({ city, onSelectLocation, onToast, onOpenMap }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Insights + AQI                                                      */
+/*  Today's Insights                                                    */
 /* ------------------------------------------------------------------ */
 function buildInsights({ data, now, hours, day1 }) {
   const c = data.current;
   const next12 = Math.max(0, ...hours.slice(0, 12).map((h) => h.pop));
   const wetNow = c.kind === 'rain' || c.kind === 'storm';
   const wetTomorrow = day1 && (day1.kind === 'rain' || day1.kind === 'storm' || day1.pop >= 50);
+
   let umbrella;
   if (wetNow) umbrella = { title: 'Carry an umbrella', text: 'Rain in the area right now.' };
   else if (next12 >= 50) umbrella = { title: 'Carry an umbrella', text: 'Rain is likely later today.' };
@@ -452,55 +738,37 @@ function buildInsights({ data, now, hours, day1 }) {
       : { title: 'Humidity is comfortable', text: 'No special precautions.' };
 
   return [
-    { ...umbrella, Icon: Umbrella, color: '#59a8ff' }, { ...outdoor, Icon: Activity, color: '#3be59a' },
-    { ...uv, Icon: Sun, color: '#ffc23d' }, { ...hum, Icon: Droplet, color: '#59a8ff' },
+    { ...umbrella, Icon: Umbrella, color: '#59a8ff' },
+    { ...outdoor, Icon: Activity, color: '#3be59a' },
+    { ...uv, Icon: Sun, color: '#ffc23d' },
+    { ...hum, Icon: Droplet, color: '#59a8ff' },
   ];
 }
 
 function Insights({ items }) {
   return (
-    <Card className="insights" id="insights">
-      <header><h3><Lightbulb size={20} color="#ffc23d" fill="#ffc23d" fillOpacity={0.35} /> Today&apos;s Insights</h3></header>
-      <div className="insList">
-        <AnimatePresence initial={false}>
-          {items.map(({ title, text, Icon, color }, i) => (
-            <motion.div key={title} className="ins" layout initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ delay: 0.5 + i * 0.1, type: 'spring', stiffness: 120, damping: 16 }} whileHover={{ x: 4 }}>
-              <span className="insIcon" style={{ '--c': color }}><Icon size={24} color={color} /></span>
-              <div><b>{title}</b><small>{text}</small></div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-    </Card>
-  );
-}
-
-const aqiInfo = (v) => (v <= 50 ? ['Excellent', '#3be59a', '#16c7a5'] : v <= 100 ? ['Good', '#53e08a', '#1fd1b0'] : v <= 150 ? ['Moderate', '#ffd23f', '#ffa53a'] : v <= 200 ? ['Poor', '#ff8a3d', '#ff5a4a'] : ['Very Poor', '#ff4d5e', '#c2185b']);
-
-function AQI({ aqi }) {
-  const v = Math.round(aqi.value ?? 0);
-  const [label, c1, c2] = aqiInfo(v);
-  const frac = Math.min(1, v / 120);
-  const arc = 'M35.4 114.6 A56 56 0 1 1 114.6 114.6';
-  const tiles = [['PM2.5', aqi.pm25], ['PM10', aqi.pm10], ['NO₂', aqi.no2], ['SO₂', aqi.so2]];
-  return (
-    <Card className="aqi" id="aqi">
-      <header><h3><Leaf size={20} color="#3be59a" /> Air Quality Index</h3><ArrowRight size={18} className="mut" /></header>
-      <div className="gaugeRow">
-        <motion.div className="leaf" animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 3, repeat: Infinity }} style={{ color: c1 }}><Leaf size={22} /></motion.div>
-        <div className="gauge">
-          <svg viewBox="0 0 150 150">
-            <defs><linearGradient id="gG" x1="0" x2="1" y1="1" y2="0"><motion.stop offset="0" initial={false} animate={{ stopColor: c1 }} /><motion.stop offset="1" initial={false} animate={{ stopColor: c2 }} /></linearGradient></defs>
-            <path d={arc} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth="9" strokeLinecap="round" />
-            <motion.path d={arc} fill="none" stroke="url(#gG)" strokeWidth="9" strokeLinecap="round" initial={{ pathLength: 0 }} animate={{ pathLength: frac }} transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }} />
-          </svg>
-          <div className="gv"><Counter value={v} className="n" /><small>{label}</small></div>
-        </div>
-      </div>
-      <div className="pollutants">
-        {tiles.map(([k, val], i) => (
-          <motion.div key={k} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 + i * 0.07 }}>
-            <small>{k}</small><b><Counter value={val ?? 0} /></b>
+    <Card className="insightsCard" id="insights">
+      <header className="insightsHeader">
+        <Lightbulb size={20} color="#ffc23d" fill="#ffc23d" fillOpacity={0.4} />
+        <h3>Today&apos;s Insights</h3>
+      </header>
+      <div className="insightsList">
+        {items.map(({ title, text, Icon, color }, i) => (
+          <motion.div
+            key={title}
+            className="insightRow"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 + i * 0.08, type: 'spring', stiffness: 120, damping: 16 }}
+            whileHover={{ x: 3 }}
+          >
+            <div className="insightIconCircle" style={{ color }}>
+              <Icon size={18} strokeWidth={2} />
+            </div>
+            <div className="insightContent">
+              <b>{title}</b>
+              <small>{text}</small>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -509,13 +777,20 @@ function AQI({ aqi }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  App                                                                 */
+/*  Main Application Component                                          */
 /* ------------------------------------------------------------------ */
 const phaseFor = (now, day) => {
-  const m = (a) => (now - a) / 60000;
-  const set = m(day.sunset); const rise_ = m(day.sunrise);
-  if (rise_ < -45 || set > 45) return 'night';
-  if (set > -90 || rise_ < 60) return 'dusk';
+  if (!day || !day.sunrise || !day.sunset) return 'day';
+  const m = (a) => (now.getTime() - a.getTime()) / 60000;
+  const rise = m(day.sunrise);
+  const set = m(day.sunset);
+
+  // Sunrise window: 45 min before sunrise to 60 min after sunrise
+  if (rise >= -45 && rise <= 60) return 'sunrise';
+  // Dusk/Sunset window: 60 min before sunset to 45 min after sunset
+  if (set >= -60 && set <= 45) return 'dusk';
+  // Nighttime: before morning dawn or after evening dusk
+  if (rise < -45 || set > 45) return 'night';
   return 'day';
 };
 
@@ -526,7 +801,7 @@ export default function App() {
   const [unit, setUnit] = useState('C');
   const [active, setActive] = useState('Home');
   const [mapOpen, setMapOpen] = useState(false);
-  const [mapMode, setMapMode] = useState('dark');
+  const [mapMode, setMapMode] = useState('radar');
   const [locOpen, setLocOpen] = useState(false);
   const [unread, setUnread] = useState(true);
   const [toast, setToast] = useState('');
@@ -550,7 +825,7 @@ export default function App() {
   const raw = (now - day.sunrise) / (day.sunset - day.sunrise);
   const isDay = raw > 0 && raw < 1;
   const override = new URLSearchParams(window.location.search).get('phase');
-  const phase = ['day', 'dusk', 'night'].includes(override) ? override : phaseFor(now, day);
+  const phase = ['day', 'dusk', 'night', 'sunrise'].includes(override) ? override : phaseFor(now, day);
 
   const hourKey = `${now.getUTCDate()}-${now.getUTCHours()}`;
   const hours = useMemo(() => {
@@ -566,7 +841,7 @@ export default function App() {
   const onNav = (name, target) => {
     setActive(name);
     if (name === 'Maps') {
-      setMapMode('dark');
+      setMapMode('radar');
       setMapOpen(true);
       return;
     }
@@ -581,35 +856,57 @@ export default function App() {
     else if (target) goto(target);
   };
 
-  const wet = data.current.kind === 'rain' || data.current.kind === 'storm';
-
   return (
     <UnitCtx.Provider value={ctx}>
-      <Scene phase={phase} progress={raw} />
-      <Rain active={wet} heavy={data.current.kind === 'storm'} />
-      <div className="vignette" />
+      <Scene
+        phase={phase}
+        progress={raw}
+        current={data.current}
+        city={shown}
+        now={now}
+        day={day}
+      />
+
       <AnimatePresence>
         {loading && <motion.div className="loadbar" initial={{ scaleX: 0, opacity: 1 }} animate={{ scaleX: 0.85 }} exit={{ scaleX: 1, opacity: 0 }} transition={{ duration: 1.2 }} />}
       </AnimatePresence>
 
       <div className="app">
         <Sidebar active={active} onNav={onNav} unit={unit} />
+
         <motion.main className="main" variants={container} initial="hidden" animate="show">
+          {/* Topbar Bar */}
           <Topbar
             city={shown} setCity={setCity} now={now} live={live} locOpen={locOpen} setLocOpen={setLocOpen}
-            alerts={insights.slice(0, 2)} unread={unread} setUnread={setUnread}
+            alerts={insights.slice(0, 2)} unread={unread} setUnread={setUnread} onToast={setToast}
           />
+
+          {/* 2-Column Dashboard Grid matching the Mockup */}
           <div className="content">
+            {/* Left Column */}
             <motion.div className="colL" variants={col}>
-              <Hero city={shown} data={data} now={now} day={day} isDay={isDay} onCity={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setLocOpen(true); }} />
+              {/* Row 1: Hero Card */}
+              <Hero
+                city={shown} data={data} now={now} day={day} isDay={isDay}
+                onCity={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setLocOpen(true); }}
+              />
+
+              {/* Row 2: Hourly Forecast Card */}
               <Hourly list={hours} current={data.current} />
-              <div className="bottom">
+
+              {/* Row 3: 7-Day Forecast + Air Quality Index */}
+              <div className="bottomRowL">
                 <Week daily={week} />
                 <AQI aqi={data.aqi} />
               </div>
             </motion.div>
+
+            {/* Right Column */}
             <motion.div className="colR" variants={col}>
+              {/* Card 1: Sun Schedule Arc */}
               <SunCard day={day} now={now} />
+
+              {/* Card 2: Live Weather Map */}
               <MapCard
                 city={shown}
                 onSelectLocation={(newPlace) => {
@@ -618,16 +915,19 @@ export default function App() {
                 }}
                 onToast={(msg) => setToast(msg)}
                 onOpenMap={() => {
-                  setMapMode('dark');
+                  setMapMode('radar');
                   setMapOpen(true);
                 }}
               />
+
+              {/* Card 3: Today's Insights */}
               <Insights items={insights} />
             </motion.div>
           </div>
         </motion.main>
       </div>
 
+      {/* Interactive Map Modal */}
       <AnimatePresence>
         {mapOpen && (
           <MapModal
@@ -644,6 +944,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Toast popup */}
       <AnimatePresence>
         {toast && (
           <motion.div className="glass toast" initial={{ opacity: 0, y: 30, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 20 }}>

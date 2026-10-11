@@ -12,12 +12,12 @@ const spring = { type: 'spring', stiffness: 420, damping: 34 };
 const TILES = {
   dark: {
     name: 'Dark Canvas',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     options: {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 16,
+      attribution: '&copy; Esri &copy; OpenStreetMap',
     },
+    referenceUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
   },
   satellite: {
     name: 'Satellite',
@@ -29,20 +29,19 @@ const TILES = {
   },
   radar: {
     name: 'Live Radar',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     options: {
-      subdomains: 'abcd',
-      maxZoom: 19,
-      attribution: '&copy; CARTO &copy; RainViewer',
+      maxZoom: 16,
+      attribution: '&copy; Esri &copy; RainViewer',
     },
+    referenceUrl: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
   },
   streets: {
     name: 'Streets',
-    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
     options: {
-      subdomains: 'abcd',
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      attribution: '&copy; OpenStreetMap contributors',
     },
   },
 };
@@ -60,6 +59,7 @@ export default function MapModal({
   const markerRef = useRef(null);
   const radarLayerRef = useRef(null);
   const tileLayerRef = useRef(null);
+  const referenceLayerRef = useRef(null);
 
   const [mode, setMode] = useState(initialMode);
   const [locating, setLocating] = useState(false);
@@ -205,9 +205,24 @@ export default function MapModal({
       try {
         map.removeLayer(tileLayerRef.current);
       } catch (e) {}
+      tileLayerRef.current = null;
     }
+    if (referenceLayerRef.current) {
+      try {
+        map.removeLayer(referenceLayerRef.current);
+      } catch (e) {}
+      referenceLayerRef.current = null;
+    }
+
     const cfg = TILES[mode] || TILES.dark;
-    tileLayerRef.current = L.tileLayer(cfg.url, cfg.options).addTo(map);
+    tileLayerRef.current = L.tileLayer(cfg.url, { ...cfg.options, zIndex: 1 }).addTo(map);
+
+    if (cfg.referenceUrl) {
+      referenceLayerRef.current = L.tileLayer(cfg.referenceUrl, {
+        maxZoom: cfg.options.maxZoom,
+        zIndex: 15,
+      }).addTo(map);
+    }
 
     // Radar precipitation overlay
     if (mode === 'radar' && radarPath) {
@@ -218,7 +233,9 @@ export default function MapModal({
       }
       const rLayer = L.tileLayer(`https://tilecache.rainviewer.com${radarPath}/256/{z}/{x}/{y}/2/1_1.png`, {
         opacity: 0.85,
-        zIndex: 50,
+        zIndex: 30,
+        maxNativeZoom: 7,
+        maxZoom: 18,
       }).addTo(map);
       radarLayerRef.current = rLayer;
     } else if (radarLayerRef.current) {
