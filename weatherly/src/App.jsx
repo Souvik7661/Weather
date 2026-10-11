@@ -328,11 +328,53 @@ function Topbar({ city, setCity, now, live, locOpen, setLocOpen, alerts, unread,
         </motion.button>
         <AnimatePresence>
           {bell && (
-            <motion.div className="glass drop bellPop" initial={{ opacity: 0, y: -8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8 }}>
-              <h4>Weather Alerts</h4>
-              {alerts.length ? alerts.map((a) => (
-                <p key={a.title}><strong>{a.title}</strong>{a.text}</p>
-              )) : <p>No severe weather warnings active.</p>}
+            <motion.div
+              className="glass bellPop"
+              initial={{ opacity: 0, y: -8, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div className="bellPopHeader">
+                <div className="bellPopTitle">
+                  <Bell size={16} color="#ffb454" />
+                  <h4>Live Weather Alerts & Tips</h4>
+                </div>
+                <button
+                  onClick={() => setBell(false)}
+                  className="bellPopClose"
+                  aria-label="Close alerts"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              <div className="bellPopList">
+                {alerts && alerts.length > 0 ? (
+                  alerts.map((a) => {
+                    const ItemIcon = a.Icon || Bell;
+                    return (
+                      <div key={a.title} className="bellPopItem">
+                        <div
+                          className="bellPopIconCircle"
+                          style={{ color: a.color || '#5b98ff' }}
+                        >
+                          <ItemIcon size={16} />
+                        </div>
+                        <div className="bellPopItemText">
+                          <strong>{a.title}</strong>
+                          <span>{a.text}</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="bellPopEmpty">
+                    <p>No severe weather warnings active.</p>
+                    <small>Atmospheric conditions are optimal.</small>
+                  </div>
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -878,7 +920,7 @@ export default function App() {
           {/* Topbar Bar */}
           <Topbar
             city={shown} setCity={setCity} now={now} live={live} locOpen={locOpen} setLocOpen={setLocOpen}
-            alerts={insights.slice(0, 2)} unread={unread} setUnread={setUnread} onToast={setToast}
+            alerts={insights} unread={unread} setUnread={setUnread} onToast={setToast}
           />
 
           {/* 2-Column Dashboard Grid matching the Mockup */}

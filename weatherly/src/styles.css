@@ -228,11 +228,72 @@ small { font-size: 0.8rem; color: var(--mut); }
   border-radius: 50%; background: #ff4d5e; border: 2px solid #0f132a;
 }
 .bellPop {
-  position: absolute; top: calc(100% + 10px); right: 0; width: 300px;
-  padding: 16px; border-radius: 20px; z-index: 40;
+  position: absolute; top: calc(100% + 12px); right: 0; left: auto !important;
+  width: 320px; max-width: calc(100vw - 32px);
+  padding: 16px; border-radius: 22px; z-index: 100;
+  background: rgba(10, 15, 34, 0.94);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 1px rgba(255, 255, 255, 0.2);
 }
-.bellPop h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: #fff; }
-.bellPop p { font-size: 0.82rem; color: var(--mut); line-height: 1.35; margin-bottom: 6px; }
+.bellPopHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.bellPopTitle {
+  display: flex; align-items: center; gap: 8px;
+}
+.bellPopTitle h4 {
+  font-size: 0.92rem; font-weight: 600; color: #fff; margin: 0;
+}
+.bellPopClose {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.1); border: none;
+  color: var(--mut); cursor: pointer; transition: background 0.18s, color 0.18s;
+}
+.bellPopClose:hover {
+  background: rgba(255, 255, 255, 0.22); color: #fff;
+}
+.bellPopList {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.bellPopItem {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 10px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.16s;
+}
+.bellPopItem:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+.bellPopIconCircle {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0; margin-top: 1px;
+}
+.bellPopItemText {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 0; word-break: break-word;
+}
+.bellPopItemText strong {
+  font-size: 0.84rem; font-weight: 600; color: #fff; line-height: 1.25;
+}
+.bellPopItemText span {
+  font-size: 0.76rem; color: var(--mut); line-height: 1.3;
+}
+.bellPopEmpty {
+  padding: 12px 6px; text-align: center;
+}
+.bellPopEmpty p {
+  font-size: 0.85rem; color: #fff; margin-bottom: 2px;
+}
+.bellPopEmpty small {
+  font-size: 0.74rem; color: var(--mut);
+}
 
 /* ---------- Dropdowns (Worldwide Search & Presets) ---------- */
 .drop {
