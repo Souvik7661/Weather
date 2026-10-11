@@ -3,7 +3,7 @@ import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, use
 import {
   Activity, ArrowRight, ArrowUpRight, BarChart3, Bell, CalendarDays, ChevronDown, ChevronLeft, ChevronRight,
   Clock, Cloud, CloudFog, CloudLightning, CloudMoon, CloudRain, CloudSnow, CloudSun, Compass, Droplet,
-  Gauge, Home, Leaf, Lightbulb, Loader2, Map as MapIcon, MapPin, Maximize2, Moon, MoreHorizontal, Navigation,
+  Gauge, Home, Leaf, Lightbulb, Loader2, LogOut, Map as MapIcon, MapPin, Maximize2, Moon, MoreHorizontal, Navigation,
   Radar as RadarIcon, Search, Settings, Sparkles, Sun, Thermometer, Umbrella, Wind, X, Zap,
 } from 'lucide-react';
 import Scene, { Rain } from './Scene.jsx';
@@ -425,12 +425,26 @@ function Sidebar({ active, onNav, unit }) {
 
       <div className="grow" />
 
-      {/* Profile Card */}
+      {/* Profile Card & Logout */}
       <div className="glass me">
         <div className="avatar"><span>SK</span></div>
         <div className="meInfo">
           <b>Souvik Kundu</b>
         </div>
+        <button
+          className="logoutBtn"
+          title="Log out"
+          onClick={() => {
+            try {
+              localStorage.removeItem('weatherly-user');
+            } catch {
+              /* storage blocked */
+            }
+            window.location.reload();
+          }}
+        >
+          <LogOut size={16} />
+        </button>
       </div>
     </motion.aside>
   );

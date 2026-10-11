@@ -145,6 +145,15 @@ small { font-size: 0.8rem; color: var(--mut); }
   background: #111530; font-weight: 600; font-size: 0.88rem; color: #fff;
 }
 .meInfo b { display: block; font-size: 0.88rem; font-weight: 600; color: #fff; }
+.logoutBtn {
+  margin-left: auto; display: grid; place-items: center; width: 32px; height: 32px;
+  border-radius: 10px; color: var(--mut); background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08); transition: color 0.2s, background 0.2s, transform 0.15s;
+}
+.logoutBtn:hover {
+  color: #ff6b7a; background: rgba(255, 107, 122, 0.16); border-color: rgba(255, 107, 122, 0.3);
+  transform: scale(1.05);
+}
 
 /* ---------- topbar ---------- */
 .top {
