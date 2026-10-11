@@ -35,15 +35,16 @@ const TILES = {
   },
   streets: {
     name: 'Streets',
-    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
     options: {
+      subdomains: 'abcd',
       maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors',
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
     },
   },
 };
 
-export default function RealMap({ city, onSelectLocation, onToast }) {
+export default function RealMap({ city, onSelectLocation, onToast, onOpenMap }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
@@ -71,6 +72,17 @@ export default function RealMap({ city, onSelectLocation, onToast }) {
   // Initialize Leaflet Map
   useEffect(() => {
     if (!containerRef.current) return undefined;
+
+    // Clean up if container was already initialized by Leaflet (prevents "Map container is already initialized" crash)
+    if (containerRef.current._leaflet_id) {
+      delete containerRef.current._leaflet_id;
+    }
+    if (mapRef.current) {
+      try {
+        mapRef.current.remove();
+      } catch (err) {}
+      mapRef.current = null;
+    }
 
     const map = L.map(containerRef.current, {
       center: [city.lat, city.lon],
@@ -109,13 +121,29 @@ export default function RealMap({ city, onSelectLocation, onToast }) {
     marker.bindPopup(`<b>${city.name}</b><br/><small>${city.region}</small>`);
     markerRef.current = marker;
 
+    // Ensure map tiles and container measure accurately
+    const invalidate = () => {
+      try {
+        map.invalidateSize();
+      } catch (e) {}
+    };
+    invalidate();
+    const t1 = setTimeout(invalidate, 100);
+    const t2 = setTimeout(invalidate, 400);
+
+    let ro;
+    if (typeof ResizeObserver !== 'undefined' && containerRef.current) {
+      ro = new ResizeObserver(() => invalidate());
+      ro.observe(containerRef.current);
+    }
+
     // Click anywhere on Earth to select location
     map.on('click', async (e) => {
       const { lat, lng } = e.latlng;
       marker.setLatLng([lat, lng]);
       marker.bindPopup('<b>Loading weather...</b>').openPopup();
 
-      onToast?.(`Locating ${lat.toFixed(2)}°, ${lng.toFixed(2)}°...`);
+      onToast?.(`Locating ${lat.toFixed(2)}°, ${lng.toFixed(2)}...`);
       const newPlace = await reverseGeocode(lat, lng);
       marker.bindPopup(`<b>${newPlace.name}</b><br/><small>${newPlace.region}</small>`).openPopup();
       onSelectLocation?.(newPlace);
@@ -123,10 +151,18 @@ export default function RealMap({ city, onSelectLocation, onToast }) {
     });
 
     return () => {
-      map.remove();
+      clearTimeout(t1);
+      clearTimeout(t2);
+      if (ro) ro.disconnect();
+      try {
+        map.remove();
+      } catch (e) {}
       mapRef.current = null;
+      if (containerRef.current) {
+        delete containerRef.current._leaflet_id;
+      }
     };
-  }, []); // Run once on mount
+  }, []); // Run once on mountnt
 
   // Update base tile layer on mode change
   useEffect(() => {
@@ -210,11 +246,21 @@ export default function RealMap({ city, onSelectLocation, onToast }) {
   return (
     <div className="realMapCard">
       <header className="mapHeader">
-        <div className="mapTitle">
+        <div className="mapTitle" onClick={onOpenMap} style={{ cursor: onOpenMap ? 'pointer' : 'default' }}>
           <Compass size={20} color="#ffb454" />
           <h3>Interactive Global Map</h3>
         </div>
         <div className="mapControls">
+          {onOpenMap && (
+            <button
+              className="openFullMapBtn"
+              onClick={onOpenMap}
+              title="Open full interactive map modal"
+            >
+              <Maximize2 size={14} />
+              <span>Open Map</span>
+            </button>
+          )}
           <a
             href={googleMapsUrl}
             target="_blank"
@@ -235,11 +281,11 @@ export default function RealMap({ city, onSelectLocation, onToast }) {
           </button>
           <button
             className="mapIconBtn"
-            onClick={() => setBig(!big)}
-            aria-label={big ? 'Shrink map' : 'Expand map'}
-            title={big ? 'Shrink map' : 'Expand map'}
+            onClick={onOpenMap ? onOpenMap : () => setBig(!big)}
+            aria-label="Open full map"
+            title="Open full map"
           >
-            {big ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+            <Maximize2 size={18} />
           </button>
         </div>
       </header>

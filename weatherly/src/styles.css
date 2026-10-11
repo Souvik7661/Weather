@@ -252,12 +252,28 @@ header h3, .cardTools { font-weight: 600; }
 .mapLayerTab.on { color: #fff; font-weight: 600; border-color: rgba(130, 155, 255, 0.85); }
 .tabBg { position: absolute; inset: 0; border-radius: 12px; background: linear-gradient(135deg, rgba(63, 99, 255, 0.85), rgba(110, 139, 255, 0.55)); box-shadow: 0 4px 14px rgba(80, 110, 255, 0.4); }
 
+.openFullMapBtn {
+  display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 14px;
+  font-size: 0.78rem; font-weight: 600; color: #fff;
+  background: linear-gradient(135deg, rgba(63, 99, 255, 0.85), rgba(110, 139, 255, 0.65));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 14px rgba(80, 110, 255, 0.4);
+  cursor: pointer;
+  transition: transform 0.18s, box-shadow 0.18s, background 0.18s;
+}
+.openFullMapBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(80, 110, 255, 0.65);
+  background: linear-gradient(135deg, rgba(75, 110, 255, 0.95), rgba(125, 150, 255, 0.8));
+}
+
 .mapViewportWrapper {
   position: relative; width: 100%; border-radius: 18px; overflow: hidden;
   border: 1px solid var(--line); box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.5);
   background: #0b0f1d;
+  min-height: 220px;
 }
-.leafletMapCanvas { width: 100%; height: 100%; z-index: 1; }
+.leafletMapCanvas { width: 100%; height: 100%; min-height: 220px; z-index: 1; }
 
 .mapFloatingBar {
   position: absolute; left: 10px; right: 10px; bottom: 8px; z-index: 1000; pointer-events: none;
@@ -268,6 +284,126 @@ header h3, .cardTools { font-weight: 600; }
 }
 .coordText b { color: #ffb454; }
 .mapHelp { opacity: 0.7; font-size: 0.72rem; }
+
+/* ---------- Map Modal ---------- */
+.mapModalOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(6, 8, 20, 0.85);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  display: grid; place-items: center;
+  padding: 20px;
+}
+.mapModalCard {
+  width: 100%; max-width: 1220px; max-height: 94vh;
+  display: flex; flex-direction: column;
+  padding: 22px 24px 22px; border-radius: 28px;
+  background: rgba(12, 15, 34, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.mapModalHeader {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  margin-bottom: 12px;
+}
+.mapModalTitleGroup {
+  display: flex; align-items: center; gap: 14px;
+}
+.mapTitleIcon {
+  width: 44px; height: 44px; border-radius: 16px;
+  display: grid; place-items: center;
+  background: rgba(255, 180, 84, 0.14); border: 1px solid rgba(255, 180, 84, 0.28);
+}
+.mapModalTitleGroup h3 {
+  font-size: 1.35rem; font-weight: 700; color: #fff; margin: 0 0 2px;
+}
+.mapModalSub {
+  display: flex; align-items: center; gap: 6px; font-size: 0.82rem; color: var(--mut); margin: 0;
+}
+.mapModalSub b { color: #fff; font-weight: 600; }
+.mapModalActions {
+  display: flex; align-items: center; gap: 10px;
+}
+.modalBtn {
+  display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 14px;
+  font-size: 0.82rem; font-weight: 500; color: #fff;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line);
+  cursor: pointer; transition: background 0.2s, transform 0.15s, border-color 0.2s;
+}
+.modalBtn:hover {
+  background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+.modalBtn.spin svg { animation: spin 1s linear infinite; }
+.googleLink { text-decoration: none; }
+.googleLink:hover { background: rgba(91, 123, 255, 0.25); border-color: rgba(91, 123, 255, 0.8); }
+.modalCloseBtn {
+  display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid var(--line); color: var(--mut);
+  cursor: pointer; transition: background 0.2s, color 0.2s, transform 0.15s;
+}
+.modalCloseBtn:hover {
+  background: rgba(255, 77, 94, 0.25); border-color: #ff4d5e; color: #fff; transform: scale(1.05);
+}
+.mapModalLayerBar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.radarLiveBadge {
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 20px;
+  background: rgba(59, 229, 154, 0.12); border: 1px solid rgba(59, 229, 154, 0.3);
+  font-size: 0.78rem; font-weight: 600; color: #3be59a;
+}
+.liveDot {
+  width: 8px; height: 8px; border-radius: 50%; background: #3be59a;
+  box-shadow: 0 0 0 0 rgba(59, 229, 154, 0.7); animation: ping 1.8s infinite;
+}
+.radarPulseIcon {
+  margin-right: 4px; vertical-align: middle;
+  animation: pulse 2s infinite ease-in-out;
+}
+.mapModalViewport {
+  position: relative; width: 100%; height: 58vh; min-height: 420px;
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--line); box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+  background: #090c1a;
+}
+.fullCanvas { height: 100% !important; min-height: 100% !important; }
+.modalFloatingBar {
+  left: 14px; right: 14px; bottom: 12px; padding: 8px 16px;
+  font-size: 0.82rem;
+}
+.radarLegend {
+  position: absolute; right: 14px; top: 14px; z-index: 1000;
+  display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-radius: 14px;
+  background: rgba(10, 13, 30, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.legendLabel { font-size: 0.72rem; color: var(--mut); font-weight: 500; }
+.legendGradient {
+  width: 140px; height: 8px; border-radius: 4px;
+  background: linear-gradient(to right, rgba(30,110,255,0.7), #00e18c, #bef028, #ffaa00, #ff2828);
+}
+.legendLabels {
+  display: flex; justify-content: space-between; font-size: 0.68rem; color: rgba(255, 255, 255, 0.7);
+}
+.mapModalFooter {
+  display: flex; align-items: center; gap: 12px; margin-top: 14px; flex-wrap: wrap;
+}
+.presetLabel { font-size: 0.8rem; font-weight: 600; color: var(--mut); }
+.mapPresetChips {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.presetChip {
+  padding: 5px 12px; border-radius: 12px; font-size: 0.78rem; font-weight: 500;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid var(--line); color: rgba(240, 243, 255, 0.8);
+  cursor: pointer; transition: background 0.18s, color 0.18s, border-color 0.18s;
+}
+.presetChip:hover {
+  background: rgba(255, 255, 255, 0.14); color: #fff; border-color: rgba(255, 255, 255, 0.3);
+}
+.presetChip.on {
+  background: rgba(91, 123, 255, 0.25); border-color: #5b7bff; color: #fff; font-weight: 600;
+}
 
 /* Custom Leaflet Pin */
 .weatherly-map-pin { position: relative; width: 32px; height: 42px; }

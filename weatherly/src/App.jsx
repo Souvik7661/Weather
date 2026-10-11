@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import Scene, { Rain } from './Scene.jsx';
 import RealMap from './RealMap.jsx';
+import MapModal from './MapModal.jsx';
 import {
   PRESETS, dayMonth, dayName, fmtClock, fmtDate, fmtDur, fmtHour, fmtTime, geocode, sameDay, useNow, useWeather,
 } from './weather.js';
@@ -411,10 +412,10 @@ function SunCard({ day, now }) {
 /* ------------------------------------------------------------------ */
 /*  Interactive Global Map                                              */
 /* ------------------------------------------------------------------ */
-function MapCard({ city, onSelectLocation, onToast }) {
+function MapCard({ city, onSelectLocation, onToast, onOpenMap }) {
   return (
     <Card className="mapCard" id="map">
-      <RealMap city={city} onSelectLocation={onSelectLocation} onToast={onToast} />
+      <RealMap city={city} onSelectLocation={onSelectLocation} onToast={onToast} onOpenMap={onOpenMap} />
     </Card>
   );
 }
@@ -524,7 +525,8 @@ export default function App() {
   const now = useNow(data.offset);
   const [unit, setUnit] = useState('C');
   const [active, setActive] = useState('Home');
-  const [mode, setMode] = useState('radar');
+  const [mapOpen, setMapOpen] = useState(false);
+  const [mapMode, setMapMode] = useState('dark');
   const [locOpen, setLocOpen] = useState(false);
   const [unread, setUnread] = useState(true);
   const [toast, setToast] = useState('');
@@ -563,8 +565,16 @@ export default function App() {
   const goto = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const onNav = (name, target) => {
     setActive(name);
-    if (name === 'Radar') setMode('radar');
-    if (name === 'Maps') setMode('temperature');
+    if (name === 'Maps') {
+      setMapMode('dark');
+      setMapOpen(true);
+      return;
+    }
+    if (name === 'Radar') {
+      setMapMode('radar');
+      setMapOpen(true);
+      return;
+    }
     if (target === 'top') window.scrollTo({ top: 0, behavior: 'smooth' });
     else if (target === 'loc') { window.scrollTo({ top: 0, behavior: 'smooth' }); setLocOpen(true); }
     else if (target === 'settings') { const n = unit === 'C' ? 'F' : 'C'; setUnit(n); setToast(`Units switched to °${n}`); }
@@ -607,12 +617,32 @@ export default function App() {
                   setLocOpen(false);
                 }}
                 onToast={(msg) => setToast(msg)}
+                onOpenMap={() => {
+                  setMapMode('dark');
+                  setMapOpen(true);
+                }}
               />
               <Insights items={insights} />
             </motion.div>
           </div>
         </motion.main>
       </div>
+
+      <AnimatePresence>
+        {mapOpen && (
+          <MapModal
+            isOpen={mapOpen}
+            onClose={() => setMapOpen(false)}
+            city={shown}
+            onSelectLocation={(newPlace) => {
+              setCity(newPlace);
+              setLocOpen(false);
+            }}
+            onToast={(msg) => setToast(msg)}
+            initialMode={mapMode}
+          />
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {toast && (
