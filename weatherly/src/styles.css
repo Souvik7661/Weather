@@ -544,15 +544,47 @@ small { font-size: 0.8rem; color: var(--mut); }
 .pollutantItem small { display: block; font-size: 0.68rem; color: var(--mut); }
 .pollutantItem b { display: block; font-size: 0.94rem; font-weight: 600; color: #fff; margin-top: 1px; }
 
-/* ---------- Sun Schedule Arc Card (Transparent Glassy Box) ---------- */
-.sunScheduleCard { padding: 20px 22px 18px; border-radius: 24px; }
-.sunScheduleHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
-.arcSvg { width: 100%; height: auto; display: block; overflow: visible; margin-top: -2px; }
-.sunScheduleTimes {
-  display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; margin-top: 6px;
+/* ---------- Sun Schedule Arc Card (High-Contrast Glassy Box) ---------- */
+.sunScheduleCard {
+  padding: 22px 24px 18px;
+  border-radius: 26px;
+  background: rgba(10, 16, 36, 0.52) !important;
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.38), inset 0 1px 1px rgba(255, 255, 255, 0.24);
+  position: relative;
+  overflow: hidden;
 }
-.sunScheduleTimes b { display: block; font-size: 1.05rem; font-weight: 600; color: #fff; }
-.sunScheduleTimes small { display: block; font-size: 0.72rem; color: var(--mut); }
+.sunScheduleHeader {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+}
+.sunScheduleTitle {
+  display: flex; align-items: center; gap: 8px;
+}
+.sunScheduleLabel {
+  font-size: 0.88rem; font-weight: 600; color: #fff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+.arcSvg {
+  width: 100%; height: auto; display: block; overflow: visible; margin: 4px 0 2px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+}
+.sunScheduleTimes {
+  display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; margin-top: 10px;
+  padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sunScheduleTimes b {
+  display: block; font-size: 1.12rem; font-weight: 700; color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7), 0 0 2px rgba(0, 0, 0, 0.9);
+  letter-spacing: -0.01em;
+}
+.sunScheduleTimes small {
+  display: block; font-size: 0.78rem; font-weight: 600;
+  color: rgba(225, 238, 255, 0.88);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+  margin-top: 2px;
+}
 
 /* ---------- Live Weather Map Card (Transparent Glassy Box) ---------- */
 .mapCard { padding: 20px 22px; border-radius: 24px; }

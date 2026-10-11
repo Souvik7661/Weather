@@ -673,6 +673,8 @@ function AQI({ aqi }) {
 /* ------------------------------------------------------------------ */
 /*  Sun Schedule Arc                                                    */
 /* ------------------------------------------------------------------ */
+/*  Sun Schedule Arc Card (High-Contrast Sunrise & Morning Visibility) */
+/* ------------------------------------------------------------------ */
 function SunCard({ day, now }) {
   const total = day.sunset - day.sunrise;
   const raw = (now - day.sunrise) / total;
@@ -686,44 +688,94 @@ function SunCard({ day, now }) {
   return (
     <Card className="sunScheduleCard">
       <div className="sunScheduleHeader">
-        <Sun size={18} color="#ffb454" />
+        <div className="sunScheduleTitle">
+          <Sun size={20} color="#ffbe3d" fill="#ffbe3d" fillOpacity={0.4} />
+          <span className="sunScheduleLabel">Sun Schedule</span>
+        </div>
         <button className="iconBtn" aria-label="More options">
           <MoreHorizontal size={18} />
         </button>
       </div>
 
-      <svg viewBox="0 0 380 118" className="arcSvg" role="img" aria-label="Sun position today">
+      <svg viewBox="0 0 380 122" className="arcSvg" role="img" aria-label="Sun position today">
         <defs>
           <linearGradient id="arcG" x1="0" x2="1">
-            <stop offset="0" stopColor="#ffb454" />
-            <stop offset="100" stopColor="#ff7e5f" />
+            <stop offset="0%" stopColor="#ffbe3d" />
+            <stop offset="50%" stopColor="#ffa02e" />
+            <stop offset="100%" stopColor="#ff6542" />
           </linearGradient>
-          <filter id="sunGlow"><feGaussianBlur stdDeviation="5" /></filter>
+          <linearGradient id="arcAreaG" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#ffbe3d" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#ffbe3d" stopOpacity="0.0" />
+          </linearGradient>
+          <filter id="sunGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
-        <line x1="20" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,.16)" />
-        <path d={d} pathLength="1" fill="none" stroke="rgba(255,255,255,.35)" strokeWidth="1.5" strokeDasharray="0.012 0.018" />
+
+        {/* Luminous Golden Sun Dome under Arc for Morning Visibility */}
+        <path d="M40 100 Q190 -50 340 100 L340 100 L40 100 Z" fill="url(#arcAreaG)" />
+
+        {/* Horizon Baseline with High-Contrast Dual Layer */}
+        <line x1="20" y1="100" x2="360" y2="100" stroke="rgba(0,0,0,0.45)" strokeWidth="2.5" />
+        <line x1="20" y1="100" x2="360" y2="100" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" />
+
+        {/* Background Dashed Trajectory Arc (Shadow + High-Contrast Crisp Dashes) */}
+        <path d={d} pathLength="1" fill="none" stroke="rgba(0,0,0,0.5)" strokeWidth="3.2" strokeDasharray="0.012 0.018" />
+        <path d={d} pathLength="1" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2.2" strokeDasharray="0.012 0.018" />
+
+        {/* Active Golden Progress Arc */}
         <motion.path
           d={d}
           fill="none"
           stroke="url(#arcG)"
-          strokeWidth="2.8"
+          strokeWidth="3.6"
           strokeLinecap="round"
           initial={{ pathLength: 0 }}
           animate={{ pathLength: p }}
           transition={{ duration: 2, ease: 'easeOut', delay: 0.5 }}
         />
-        <circle cx="40" cy="100" r="5" fill="#ffb454" />
-        <path transform="translate(331 91) scale(.17)" d="M62 10a42 42 0 1 0 28 62A34 34 0 0 1 62 10z" fill="#b9c4ff" />
+
+        {/* Sunrise Point Marker (Left) */}
+        <circle cx="40" cy="100" r="7" fill="rgba(255, 180, 84, 0.25)" stroke="#ffb454" strokeWidth="1.5" />
+        <circle cx="40" cy="100" r="4" fill="#ffb454" />
+
+        {/* Sunset Point Marker (Right with Moon Badge) */}
+        <g transform="translate(330, 90)">
+          <circle cx="10" cy="10" r="9" fill="rgba(180, 195, 255, 0.2)" stroke="rgba(180, 195, 255, 0.5)" strokeWidth="1" />
+          <path transform="translate(2, 2) scale(0.16)" d="M62 10a42 42 0 1 0 28 62A34 34 0 0 1 62 10z" fill="#ccd6f6" />
+        </g>
+
+        {/* Live Sun Indicator & Pulse Glow */}
         <motion.g initial={false} animate={{ opacity: up ? 1 : 0 }}>
           <motion.circle
             initial={false}
-            animate={{ cx: sx, cy: sy, r: [14, 22, 14] }}
+            animate={{ cx: sx, cy: sy, r: [16, 24, 16] }}
             transition={{ r: { duration: 3, repeat: Infinity }, cx: { duration: 2 }, cy: { duration: 2 } }}
-            fill="#ffb454"
-            opacity="0.5"
+            fill="#ffbe3d"
+            opacity="0.45"
             filter="url(#sunGlow)"
           />
-          <motion.circle initial={false} animate={{ cx: sx, cy: sy }} transition={{ duration: 2 }} r="9" fill="#ffd36e" stroke="#fff3c4" strokeWidth="2" />
+          <motion.circle
+            initial={false}
+            animate={{ cx: sx, cy: sy }}
+            transition={{ duration: 2 }}
+            r="9.5"
+            fill="#ffa726"
+            stroke="#ffffff"
+            strokeWidth="2.5"
+          />
+          <motion.circle
+            initial={false}
+            animate={{ cx: sx, cy: sy }}
+            transition={{ duration: 2 }}
+            r="4"
+            fill="#ffffff"
+          />
         </motion.g>
       </svg>
 
