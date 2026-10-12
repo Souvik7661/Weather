@@ -1,117 +1,737 @@
-/* ---------- login ---------- */
-.loginShell { position: relative; z-index: 1; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-.loginCard { width: min(980px, 100%); display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; border-radius: 32px; background: rgba(10, 12, 28, 0.55); }
+/* ==========================================================================
+   Weatherly Premium Glassmorphic Login Styles
+   Matching exact UI specification with Framer Motion animations
+   ========================================================================== */
 
-/* brand pane */
-.brandPane { position: relative; padding: 34px 34px 30px; display: flex; flex-direction: column; gap: 18px; background: linear-gradient(160deg, rgba(91, 123, 255, 0.22), rgba(255, 154, 92, 0.12) 70%, transparent); border-right: 1px solid var(--line); }
-.brandLogo { display: flex; align-items: center; gap: 10px; }
-.brandLogo b { display: block; font-size: 1.5rem; font-weight: 700; letter-spacing: -0.01em; }
-.brandLogo small { display: block; }
-.brandOrb { height: 230px; margin: 6px 0; }
-.brandOrb .sunBall { left: 50%; top: 22px; width: 120px; height: 120px; margin-left: -96px; }
-.brandOrb .cloudWrap { left: 50%; bottom: 18px; margin-left: -62px; transform: scale(1.35); transform-origin: bottom center; }
-.floatChip { position: absolute; display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 16px; font-size: 0.85rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--line); backdrop-filter: blur(12px); white-space: nowrap; }
-.brandPane h2 { font-size: 1.9rem; font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
-.brandPane p { margin-top: 8px; color: var(--mut); line-height: 1.45; max-width: 330px; }
-
-/* form pane */
-.formPane { padding: 40px 40px 32px; display: flex; flex-direction: column; justify-content: center; min-height: 560px; overflow: hidden; }
-.formPane h1 { font-size: 2.2rem; font-weight: 600; letter-spacing: -0.02em; }
-.sub { margin-top: 6px; color: var(--mut); font-size: 1.02rem; }
-.sub b { color: #fff; font-weight: 500; }
-.phoneForm { margin-top: 26px; display: flex; flex-direction: column; gap: 10px; }
-.phoneForm label { font-size: 0.9rem; color: rgba(240, 243, 255, 0.85); }
-.field { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 16px 0 6px; border-radius: 18px; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line); transition: border-color 0.2s, box-shadow 0.2s; }
-.field:focus-within { border-color: rgba(130, 155, 255, 0.9); box-shadow: 0 0 0 4px rgba(91, 123, 255, 0.22); }
-.field.bad { border-color: #ff6b7a; box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.18); }
-.field select { appearance: none; background: transparent; border: 0; outline: 0; color: #fff; font: inherit; padding: 0 6px 0 12px; cursor: pointer; }
-.field select option { color: #111; }
-.field .sep { width: 1px; height: 24px; background: var(--line); }
-.field input { flex: 1; min-width: 0; font-size: 1.1rem; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-.field input::placeholder { color: rgba(228, 233, 255, 0.35); }
-.tick { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #3be59a; color: #06231a; }
-.err { color: #ff8f9b; font-size: 0.88rem; overflow: hidden; }
-
-.primaryBtn { position: relative; display: flex; align-items: center; justify-content: center; gap: 8px; height: 56px; margin-top: 8px; width: 100%; border-radius: 18px; font-size: 1.05rem; font-weight: 600; color: #fff; background: linear-gradient(135deg, #3f63ff, #6e8bff); box-shadow: 0 10px 30px rgba(80, 110, 255, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4); overflow: hidden; transition: opacity 0.2s, filter 0.2s; }
-.primaryBtn:disabled { opacity: 0.45; cursor: not-allowed; filter: saturate(0.6); }
-.primaryBtn:not(:disabled)::after { content: ''; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%); transform: translateX(-120%); animation: sweep 4s ease-in-out infinite; }
-
-.divider { display: flex; align-items: center; gap: 14px; margin: 22px 0; color: var(--mut); font-size: 0.85rem; }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-
-.googleBtn { display: flex; align-items: center; justify-content: center; gap: 12px; height: 56px; width: 100%; border-radius: 18px; font-size: 1.05rem; font-weight: 500; color: #1f2430; background: #fff; box-shadow: 0 8px 26px rgba(0, 0, 0, 0.3); transition: opacity 0.2s; }
-.googleBtn:disabled { opacity: 0.7; cursor: wait; }
-.legal { display: flex; align-items: center; gap: 6px; margin-top: 22px; font-size: 0.78rem; color: var(--mut); }
-
-.spinner { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; animation: spin 0.8s linear infinite; }
-.spinner.dark { border-color: rgba(0, 0, 0, 0.15); border-top-color: #3f63ff; }
-
-/* otp */
-.backBtn { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 18px; padding: 6px 12px 6px 8px; border-radius: 14px; font-size: 0.88rem; color: var(--mut); transition: background 0.2s, color 0.2s; }
-.backBtn:hover { background: rgba(255, 255, 255, 0.08); color: #fff; }
-.otpRow { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 28px 0 12px; }
-.otpRow input { width: 100%; height: 62px; text-align: center; font-size: 1.6rem; font-weight: 500; border-radius: 16px; background: rgba(255, 255, 255, 0.07); border: 1px solid var(--line); transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; caret-color: #ffb454; }
-.otpRow input:focus { border-color: rgba(255, 180, 84, 0.9); box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.2); }
-.otpRow input.filled { background: rgba(91, 123, 255, 0.2); border-color: rgba(130, 155, 255, 0.8); }
-.otpRow input.bad { border-color: #ff6b7a; background: rgba(255, 77, 94, 0.14); }
-.resend { margin-top: 18px; text-align: center; color: var(--mut); font-size: 0.92rem; }
-.resend b { color: #fff; font-variant-numeric: tabular-nums; }
-.resend button { color: #9db0ff; font-weight: 600; }
-.hint { margin-top: 6px; text-align: center; font-size: 0.78rem; color: rgba(228, 233, 255, 0.4); }
-
-/* success */
-.successWrap { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
-.successRing { position: relative; display: grid; place-items: center; width: 104px; height: 104px; margin-bottom: 14px; border-radius: 50%; background: linear-gradient(135deg, #1fd1b0, #3be59a); box-shadow: 0 12px 40px rgba(59, 229, 154, 0.45); }
-.pulseRing { position: absolute; inset: 0; border-radius: 50%; border: 2px solid #3be59a; }
-.bar { width: 220px; height: 5px; margin-top: 18px; border-radius: 4px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
-.bar i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #5b7bff, #ff9a5c); }
-
-/* scene vignette */
+/* Scene vignette & floor reflection */
 .vignette {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(120% 90% at 50% 40%, transparent 35%, rgba(3, 4, 12, 0.7)),
-    linear-gradient(180deg, rgba(4, 6, 16, 0.2), rgba(4, 6, 16, 0.55));
+    radial-gradient(120% 90% at 50% 35%, transparent 30%, rgba(3, 5, 14, 0.65)),
+    linear-gradient(180deg, rgba(4, 6, 16, 0.25) 0%, rgba(4, 6, 16, 0.6) 100%);
 }
 
-/* orb & cloud shapes */
-.orb { position: relative; width: 100%; height: 188px; }
-.sunBall {
-  position: absolute; left: 18px; top: 10px; width: 104px; height: 104px; border-radius: 50%;
-  background: radial-gradient(circle at 38% 34%, #fffbe0 0%, #ffe27a 38%, #ffb02e 78%, #ff8a1f 100%);
-  box-shadow: 0 0 50px 18px rgba(255, 176, 60, 0.55), 0 0 110px 40px rgba(255, 120, 60, 0.25);
+.loginFloorReflection {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 180px; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent, rgba(6, 9, 24, 0.5) 40%, rgba(3, 4, 12, 0.88) 100%);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
-.cloudWrap {
-  position: absolute; left: 20px; bottom: 22px; width: 150px; height: 100px;
-  filter: drop-shadow(0 14px 22px rgba(255, 140, 190, 0.28));
-}
-.cloudShape {
-  position: absolute; left: 0; bottom: 0; width: 150px; height: 90px;
-  --bg: linear-gradient(180deg, #fff, #e4d8ff 70%, #f6c9e6);
-}
-.cloudShape.dark { --bg: linear-gradient(180deg, #c3c9e6, #7f87b3); }
-.cloudShape i, .cloudShape b {
-  position: absolute; display: block; border-radius: 50%; background: var(--bg);
-  box-shadow: inset 0 -10px 16px rgba(160, 120, 230, 0.32);
-}
-.cloudShape b { left: 6px; bottom: 0; width: 138px; height: 46px; border-radius: 23px; }
-.cloudShape i:nth-child(1) { left: 12px; bottom: 14px; width: 54px; height: 54px; }
-.cloudShape i:nth-child(2) { left: 44px; bottom: 22px; width: 70px; height: 70px; }
-.cloudShape i:nth-child(3) { left: 92px; bottom: 12px; width: 50px; height: 50px; }
 
+/* Outer Shell */
+.loginShell {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px;
+}
+
+/* Glass Card */
+.loginCard {
+  position: relative;
+  width: min(940px, 100%);
+  min-height: 570px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 34px;
+  overflow: hidden;
+  background: rgba(14, 18, 38, 0.42);
+  backdrop-filter: blur(36px) saturate(190%);
+  -webkit-backdrop-filter: blur(36px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow:
+    0 35px 80px rgba(0, 0, 0, 0.6),
+    0 10px 30px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.32),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.25);
+}
+
+/* Glass Card Under-Glow (Warm reflection from dusk horizon) */
+.loginCard::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 15%;
+  right: 15%;
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(255, 145, 60, 0.25), transparent 70%);
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ==========================================================================
+   LEFT PANE: Brand Showcase & 3D Weather Orb
+   ========================================================================== */
+.brandPane {
+  position: relative;
+  padding: 38px 36px 34px 38px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(165deg, rgba(80, 110, 240, 0.14) 0%, rgba(255, 145, 80, 0.08) 55%, rgba(18, 22, 50, 0.22) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+/* Brand Logo */
+.brandLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brandLogoIcon {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 12px rgba(67, 100, 247, 0.45));
+}
+
+.brandLogoText b {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+.brandLogoText small {
+  display: block;
+  font-size: 0.78rem;
+  color: rgba(220, 230, 255, 0.65);
+  font-weight: 400;
+  margin-top: 1px;
+}
+
+/* Center 3D Orb Area */
+.brandOrbCenter {
+  position: relative;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.orbHaloGlow {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 160, 50, 0.35) 0%, rgba(255, 120, 30, 0.12) 50%, transparent 72%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+.brandOrbImg {
+  width: 240px;
+  height: 240px;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.5));
+  z-index: 2;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Floating Glass Chips */
+.glassChip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  z-index: 5;
+  white-space: nowrap;
+}
+
+.chipHumidity {
+  top: 12px;
+  right: 18px;
+}
+
+.chipAqi {
+  bottom: 20px;
+  left: 12px;
+}
+
+.chipIconWrap {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.chipIconWrap.droplet {
+  color: #54a6ff;
+  box-shadow: 0 0 12px rgba(84, 166, 255, 0.35);
+}
+
+.chipIconWrap.leaf {
+  color: #34d399;
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+}
+
+.chipMeta {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.chipTitle {
+  font-size: 0.72rem;
+  color: rgba(225, 235, 255, 0.7);
+  font-weight: 400;
+}
+
+.chipValue {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.chipTitle.good {
+  color: #6ee7b7;
+  font-weight: 500;
+}
+
+/* Brand Pane Bottom Typography */
+.brandBottom {
+  display: flex;
+  flex-direction: column;
+}
+
+.brandHeadline {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.brandAccent {
+  color: #8da4ff;
+  display: block;
+}
+
+.brandDesc {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  color: rgba(225, 235, 255, 0.7);
+  line-height: 1.45;
+  max-width: 320px;
+}
+
+/* Slider Pills */
+.brandPills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+}
+
+.brandPills .pill {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+  width: 14px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brandPills .pill.active {
+  width: 24px;
+  background: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.75);
+}
+
+/* ==========================================================================
+   RIGHT PANE: Authentication Forms & Transitions
+   ========================================================================== */
+.formPane {
+  position: relative;
+  padding: 42px 42px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 570px;
+  overflow: hidden;
+}
+
+.formContent {
+  width: 100%;
+}
+
+.formHeader h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.formSub {
+  font-size: 1.02rem;
+  color: rgba(220, 230, 255, 0.75);
+  margin-top: 6px;
+  margin-bottom: 26px;
+}
+
+.formSub b {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* Phone Form */
+.phoneForm {
+  display: flex;
+  flex-direction: column;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: rgba(230, 238, 255, 0.82);
+  margin-bottom: 8px;
+}
+
+/* Unified Field Container */
+.unifiedField {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 16px 0 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.unifiedField:focus-within {
+  border-color: rgba(110, 150, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(70, 115, 255, 0.22);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.unifiedField.bad {
+  border-color: #ff6b7a;
+  box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.18);
+  background: rgba(255, 77, 94, 0.08);
+}
+
+/* Country Trigger */
+.countryPickerWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.countryFlag {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.countryDial {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.chevron {
+  color: rgba(255, 255, 255, 0.6);
+  margin-left: 2px;
+}
+
+.countrySelect {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.countrySelect option {
+  color: #111;
+  background: #fff;
+}
+
+/* Separator Line */
+.fieldSep {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.16);
+  margin: 0 14px;
+}
+
+/* Phone Input Area */
+.phoneInputWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.phoneIcon {
+  color: rgba(210, 225, 255, 0.55);
+  flex-shrink: 0;
+}
+
+.phoneInputWrap input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+  outline: 0;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.phoneInputWrap input::placeholder {
+  color: rgba(220, 230, 255, 0.35);
+}
+
+/* Green Tick Indicator */
+.greenTick {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #22c55e;
+  color: #fff;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+}
+
+.err {
+  color: #ff8f9b;
+  font-size: 0.88rem;
+  margin-top: 6px;
+  overflow: hidden;
+}
+
+/* Send OTP Button */
+.sendOtpBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 54px;
+  margin-top: 14px;
+  border-radius: 18px;
+  font-size: 1.02rem;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #2b6bf5 0%, #3976ff 50%, #4784ff 100%);
+  box-shadow: 0 10px 26px rgba(43, 107, 245, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  overflow: hidden;
+  transition: opacity 0.2s, filter 0.2s;
+}
+
+.sendOtpBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: saturate(0.6);
+}
+
+.sendOtpBtn:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: sweep 4s ease-in-out infinite;
+}
+
+/* Or Divider */
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 22px 0;
+  color: rgba(220, 230, 255, 0.45);
+  font-size: 0.86rem;
+}
+
+.orDivider::before,
+.orDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Google Sign-In Button */
+.googleAuthBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 52px;
+  border-radius: 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: background 0.2s;
+}
+
+.googleAuthBtn:hover {
+  background: #f8fafc;
+}
+
+.googleAuthBtn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* Legal Footer */
+.legalTerms {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 24px;
+  font-size: 0.77rem;
+  color: rgba(220, 230, 255, 0.55);
+  text-align: center;
+}
+
+.legalTerms a {
+  color: rgba(235, 245, 255, 0.85);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.shieldIcon {
+  color: rgba(220, 230, 255, 0.55);
+  flex-shrink: 0;
+}
+
+/* Loading Spinners */
+.spinner {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner.dark {
+  border-color: rgba(0, 0, 0, 0.15);
+  border-top-color: #2b6bf5;
+}
+
+/* ==========================================================================
+   OTP STEP STYLES
+   ========================================================================== */
+.backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 14px;
+  font-size: 0.88rem;
+  color: rgba(220, 230, 255, 0.7);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s, color 0.2s;
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.otpRow {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 26px 0 14px;
+}
+
+.otpRow input {
+  width: 100%;
+  height: 60px;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  caret-color: #ffb454;
+}
+
+.otpRow input:focus {
+  border-color: rgba(255, 180, 84, 0.95);
+  box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.otpRow input.filled {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: rgba(96, 165, 250, 0.85);
+}
+
+.otpRow input.bad {
+  border-color: #ff6b7a;
+  background: rgba(255, 77, 94, 0.16);
+}
+
+.resend {
+  margin-top: 18px;
+  text-align: center;
+  color: rgba(220, 230, 255, 0.65);
+  font-size: 0.92rem;
+}
+
+.resend b {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+.resend button {
+  color: #8da4ff;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hint {
+  margin-top: 6px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(228, 233, 255, 0.4);
+}
+
+/* ==========================================================================
+   SUCCESS STEP STYLES
+   ========================================================================== */
+.successWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 0;
+}
+
+.successRing {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #22c55e);
+  box-shadow: 0 14px 40px rgba(34, 197, 94, 0.45);
+}
+
+.pulseRing {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid #22c55e;
+}
+
+.successWrap h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.bar {
+  width: 220px;
+  height: 5px;
+  margin-top: 20px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+/* Sweep Keyframe */
 @keyframes sweep {
   0% { transform: translateX(-120%); }
   50%, 100% { transform: translateX(120%); }
 }
 
-@media (max-width: 820px) {
-  .loginCard { grid-template-columns: 1fr; }
-  .brandPane { border-right: 0; border-bottom: 1px solid var(--line); padding: 22px 22px 18px; }
-  .brandOrb { height: 170px; }
-  .brandPane h2 { font-size: 1.4rem; }
-  .brandPane p { display: none; }
-  .floatChip { display: none; }
-  .formPane { padding: 26px 20px 24px; min-height: 0; }
-  .otpRow { gap: 6px; }
-  .otpRow input { height: 54px; font-size: 1.4rem; }
+/* ==========================================================================
+   RESPONSIVE LAYOUT
+   ========================================================================== */
+@media (max-width: 860px) {
+  .loginCard {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+  .brandPane {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 26px 24px 20px;
+  }
+  .brandOrbCenter {
+    height: 190px;
+  }
+  .brandOrbImg {
+    width: 170px;
+    height: 170px;
+  }
+  .brandHeadline {
+    font-size: 1.45rem;
+  }
+  .brandDesc {
+    display: none;
+  }
+  .glassChip {
+    padding: 6px 12px;
+  }
+  .formPane {
+    padding: 28px 22px 26px;
+    min-height: 0;
+  }
+  .otpRow {
+    gap: 6px;
+  }
+  .otpRow input {
+    height: 52px;
+    font-size: 1.4rem;
+  }
 }

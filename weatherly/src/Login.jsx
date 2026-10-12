@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, Cloud, Droplet, Leaf, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Cloud, Droplet, Leaf, Phone, ShieldCheck } from 'lucide-react';
 import Scene from './Scene.jsx';
 import './login.css';
 
@@ -271,26 +271,21 @@ const GoogleLogo = () => (
 );
 
 const card = {
-  hidden: { opacity: 0, y: 40, scale: 0.96 },
-  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 90, damping: 16, staggerChildren: 0.08, delayChildren: 0.15 } },
+  hidden: { opacity: 0, y: 35, scale: 0.97 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 95, damping: 18, staggerChildren: 0.08, delayChildren: 0.12 } },
 };
-const item = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 130, damping: 16 } } };
+const item = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 140, damping: 18 } } };
 const slide = {
-  initial: (d) => ({ opacity: 0, x: 40 * d }),
+  initial: (d) => ({ opacity: 0, x: 35 * d }),
   animate: { opacity: 1, x: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
-  exit: (d) => ({ opacity: 0, x: -40 * d, transition: { duration: 0.18 } }),
+  exit: (d) => ({ opacity: 0, x: -35 * d, transition: { duration: 0.18 } }),
 };
-
-/* floating weather chips on the brand panel */
-const CHIPS = [
-  { Icon: Droplet, color: '#59a8ff', text: 'Humidity 78%', style: { top: '14%', right: '8%' }, d: 0 },
-  { Icon: Leaf, color: '#3be59a', text: 'AQI 78 · Good', style: { bottom: '30%', left: '6%' }, d: 1.2 },
-];
 
 export default function Login({ onLogin }) {
   const [step, setStep] = useState('phone'); // phone | otp | done
   const [dir, setDir] = useState(1);
-  const [ci, setCi] = useState(0);
+  const defaultCi = Math.max(0, COUNTRIES.findIndex((c) => c.code === 'IN'));
+  const [ci, setCi] = useState(defaultCi >= 0 ? defaultCi : 0);
   const [digits, setDigits] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [busy, setBusy] = useState(null); // send | verify | google
@@ -299,9 +294,9 @@ export default function Login({ onLogin }) {
   const [user, setUser] = useState(null);
   const refs = useRef([]);
   const shake = useAnimationControls();
-  const country = COUNTRIES[ci];
+  const country = COUNTRIES[ci] || COUNTRIES[0];
   const valid = digits.length === country.len;
-  const shown = digits.length > 5 ? `${digits.slice(0, 5)} ${digits.slice(5)}` : digits;
+  const shown = country.len === 10 && digits.length > 5 ? `${digits.slice(0, 5)} ${digits.slice(5)}` : digits;
 
   /* resend countdown */
   useEffect(() => {
@@ -379,96 +374,276 @@ export default function Login({ onLogin }) {
     <>
       <Scene phase="dusk" progress={0.97} />
       <div className="vignette" />
+      <div className="loginFloorReflection" />
+
       <main className="loginShell">
-        <motion.div className="glass loginCard" variants={card} initial="hidden" animate="show">
-          {/* ---------- brand pane ---------- */}
+        <motion.div className="loginCard" variants={card} initial="hidden" animate="show">
+          {/* ---------- brand pane (left) ---------- */}
           <aside className="brandPane">
+            {/* Logo */}
             <motion.div variants={item} className="brandLogo">
-              <motion.span animate={{ y: [0, -3, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}><Cloud size={40} fill="#8aa6ff" color="#cfe0ff" strokeWidth={1.4} /></motion.span>
-              <div><b>Weatherly</b><small>See Beyond the Sky</small></div>
+              <div className="brandLogoIcon">
+                <svg width="36" height="26" viewBox="0 0 42 32" fill="none">
+                  <defs>
+                    <linearGradient id="brandCloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#9cb5ff" />
+                      <stop offset="50%" stopColor="#6988ff" />
+                      <stop offset="100%" stopColor="#4364f7" />
+                    </linearGradient>
+                    <filter id="brandCloudShadow" x="-20%" y="-20%" width="140%" height="140%">
+                      <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#3352d0" floodOpacity="0.45" />
+                    </filter>
+                  </defs>
+                  <path
+                    d="M10.5 28h21a8.5 8.5 0 0 0 2-16.7A12 12 0 0 0 10.8 11.5 8.5 8.5 0 0 0 10.5 28z"
+                    fill="url(#brandCloudGrad)"
+                    filter="url(#brandCloudShadow)"
+                  />
+                </svg>
+              </div>
+              <div className="brandLogoText">
+                <b>Weatherly</b>
+                <small>See Beyond the Sky</small>
+              </div>
             </motion.div>
 
-            <motion.div variants={item} className="orb partly brandOrb">
-              <motion.div className="sunBall" animate={{ scale: [1, 1.06, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} />
-              <motion.div className="cloudWrap" animate={{ y: [0, -7, 0], x: [0, 5, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}>
-                <div className="cloudShape"><i /><i /><i /><b /></div>
+            {/* Center 3D Weather Orb with floating chips */}
+            <motion.div variants={item} className="brandOrbCenter">
+              <div className="orbHaloGlow" />
+              <motion.img
+                src="/assets/sun_cloud_3d.png"
+                alt="3D Weather Orb"
+                className="brandOrbImg"
+                animate={{ y: [0, -8, 0], scale: [1, 1.015, 1] }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Top-Right Humidity Chip */}
+              <motion.div
+                className="glassChip chipHumidity"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+              >
+                <div className="chipIconWrap droplet">
+                  <Droplet size={16} fill="#54a6ff" color="#8bc4ff" />
+                </div>
+                <div className="chipMeta">
+                  <span className="chipTitle">Humidity</span>
+                  <b className="chipValue">78%</b>
+                </div>
               </motion.div>
-              {CHIPS.map(({ Icon, color, text, style, d }) => (
-                <motion.div key={text} className="floatChip" style={style} animate={{ y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', delay: d }}>
-                  <Icon size={16} color={color} />{text}
-                </motion.div>
-              ))}
+
+              {/* Bottom-Left AQI Chip */}
+              <motion.div
+                className="glassChip chipAqi"
+                animate={{ y: [0, -7, 0] }}
+                transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+              >
+                <div className="chipIconWrap leaf">
+                  <Leaf size={15} fill="#34d399" color="#6ee7b7" />
+                </div>
+                <div className="chipMeta">
+                  <b className="chipValue">AQI 78</b>
+                  <span className="chipTitle good">Good</span>
+                </div>
+              </motion.div>
             </motion.div>
 
-            <motion.div variants={item}>
-              <h2>Forecasts that follow you.</h2>
-              <p>Live radar, hourly updates and air quality for every city you care about.</p>
-            </motion.div>
+            {/* Bottom Headline & Pagination Indicators */}
+            <div className="brandBottom">
+              <motion.h2 variants={item} className="brandHeadline">
+                Forecasts that <span className="brandAccent">follow you.</span>
+              </motion.h2>
+              <motion.p variants={item} className="brandDesc">
+                Live radar, hourly updates and air quality for every city you care about.
+              </motion.p>
+              <motion.div variants={item} className="brandPills">
+                <span className="pill active" />
+                <span className="pill" />
+                <span className="pill" />
+                <span className="pill" />
+              </motion.div>
+            </div>
           </aside>
 
-          {/* ---------- form pane ---------- */}
+          {/* ---------- form pane (right) ---------- */}
           <section className="formPane">
             <AnimatePresence mode="wait" custom={dir} initial={false}>
               {step === 'phone' && (
-                <motion.div key="phone" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit">
-                  <motion.div variants={item} initial="hidden" animate="show">
+                <motion.div key="phone" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit" className="formContent">
+                  <motion.div variants={item} initial="hidden" animate="show" className="formHeader">
                     <h1>Welcome back</h1>
-                    <p className="sub">Log in to see today&apos;s forecast.</p>
+                    <p className="formSub">Log in to see today&apos;s forecast.</p>
                   </motion.div>
 
                   <motion.form onSubmit={send} animate={shake} className="phoneForm">
-                    <label htmlFor="phone">Phone number</label>
-                    <div className={`field ${error ? 'bad' : ''}`}>
-                      <select aria-label="Country code" value={ci} onChange={(e) => { setCi(+e.target.value); setDigits(''); }}>
-                        {COUNTRIES.map((c, i) => <option key={c.code} value={i}>{c.flag} {c.dial}</option>)}
-                      </select>
-                      <span className="sep" />
-                      <Phone size={18} className="mut" />
-                      <input
-                        id="phone" inputMode="numeric" autoComplete="tel-national" placeholder={'9'.repeat(country.len).replace(/(.{5})(.*)/, '$1 $2')}
-                        value={shown} onChange={(e) => { setDigits(e.target.value.replace(/\D/g, '').slice(0, country.len)); setError(''); }}
-                      />
+                    <label htmlFor="phone" className="fieldLabel">Phone number</label>
+                    <div className={`unifiedField ${error ? 'bad' : ''}`}>
+                      <div className="countryPickerWrap">
+                        <span className="countryFlag">{country.flag}</span>
+                        <span className="countryDial">{country.dial}</span>
+                        <ChevronDown size={14} className="chevron" />
+                        <select
+                          aria-label="Country code"
+                          value={ci}
+                          onChange={(e) => {
+                            setCi(+e.target.value);
+                            setDigits('');
+                          }}
+                          className="countrySelect"
+                        >
+                          {COUNTRIES.map((c, i) => (
+                            <option key={c.code} value={i}>
+                              {c.flag} {c.dial} ({c.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <span className="fieldSep" />
+
+                      <div className="phoneInputWrap">
+                        <Phone size={17} className="phoneIcon" />
+                        <input
+                          id="phone"
+                          inputMode="numeric"
+                          autoComplete="tel-national"
+                          placeholder={country.len === 10 ? '98765 43210' : '9'.repeat(country.len)}
+                          value={shown}
+                          onChange={(e) => {
+                            setDigits(e.target.value.replace(/\D/g, '').slice(0, country.len));
+                            setError('');
+                          }}
+                        />
+                      </div>
+
                       <AnimatePresence>
-                        {valid && <motion.span className="tick" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}><Check size={14} /></motion.span>}
+                        {valid && (
+                          <motion.span
+                            className="greenTick"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                          >
+                            <Check size={13} strokeWidth={3} />
+                          </motion.span>
+                        )}
                       </AnimatePresence>
                     </div>
-                    <AnimatePresence>{error && <motion.p className="err" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>{error}</motion.p>}</AnimatePresence>
 
-                    <motion.button type="submit" className="primaryBtn" disabled={!valid || !!busy} whileHover={valid ? { scale: 1.02 } : {}} whileTap={valid ? { scale: 0.97 } : {}}>
-                      {busy === 'send' ? <i className="spinner" /> : <>Send OTP <ArrowRight size={18} /></>}
+                    <AnimatePresence>
+                      {error && (
+                        <motion.p
+                          className="err"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                        >
+                          {error}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+
+                    <motion.button
+                      type="submit"
+                      className="sendOtpBtn"
+                      disabled={!valid || !!busy}
+                      whileHover={valid ? { scale: 1.015, boxShadow: '0 12px 30px rgba(47, 107, 244, 0.55)' } : {}}
+                      whileTap={valid ? { scale: 0.98 } : {}}
+                    >
+                      {busy === 'send' ? (
+                        <i className="spinner" />
+                      ) : (
+                        <>
+                          <span>Send OTP</span>
+                          <ArrowRight size={18} />
+                        </>
+                      )}
                     </motion.button>
                   </motion.form>
 
-                  <div className="divider"><span>or</span></div>
+                  <div className="orDivider">
+                    <span>or</span>
+                  </div>
 
-                  <motion.button className="googleBtn" onClick={google} disabled={!!busy} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}>
-                    {busy === 'google' ? <i className="spinner dark" /> : <><GoogleLogo /> Continue with Google</>}
+                  <motion.button
+                    className="googleAuthBtn"
+                    onClick={google}
+                    disabled={!!busy}
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {busy === 'google' ? (
+                      <i className="spinner dark" />
+                    ) : (
+                      <>
+                        <GoogleLogo />
+                        <span>Continue with Google</span>
+                      </>
+                    )}
                   </motion.button>
 
-                  <p className="legal"><ShieldCheck size={14} /> By continuing you agree to the Terms and Privacy Policy.</p>
+                  <div className="legalTerms">
+                    <ShieldCheck size={15} className="shieldIcon" />
+                    <span>
+                      By continuing you agree to the <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.
+                    </span>
+                  </div>
                 </motion.div>
               )}
 
               {step === 'otp' && (
-                <motion.div key="otp" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit">
+                <motion.div key="otp" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit" className="formContent">
                   <button className="backBtn" onClick={back}><ArrowLeft size={16} /> Change number</button>
-                  <h1>Enter the code</h1>
-                  <p className="sub">We sent a 6-digit code to <b>{country.dial} {shown}</b>.</p>
+                  <div className="formHeader">
+                    <h1>Enter the code</h1>
+                    <p className="formSub">We sent a 6-digit code to <b>{country.dial} {shown}</b>.</p>
+                  </div>
 
                   <motion.div className="otpRow" animate={shake} onPaste={onPaste}>
                     {otp.map((v, i) => (
                       <motion.input
-                        key={i} ref={(el) => { refs.current[i] = el; }} value={v} inputMode="numeric" autoComplete={i === 0 ? 'one-time-code' : 'off'}
-                        maxLength={1} aria-label={`Digit ${i + 1}`} className={`${v ? 'filled' : ''} ${error ? 'bad' : ''}`} disabled={busy === 'verify'}
-                        onChange={(e) => setDigit(i, e.target.value)} onKeyDown={(e) => onKey(i, e)} onFocus={(e) => e.target.select()}
-                        initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.05, type: 'spring', stiffness: 200, damping: 16 }}
+                        key={i}
+                        ref={(el) => { refs.current[i] = el; }}
+                        value={v}
+                        inputMode="numeric"
+                        autoComplete={i === 0 ? 'one-time-code' : 'off'}
+                        maxLength={1}
+                        aria-label={`Digit ${i + 1}`}
+                        className={`${v ? 'filled' : ''} ${error ? 'bad' : ''}`}
+                        disabled={busy === 'verify'}
+                        onChange={(e) => setDigit(i, e.target.value)}
+                        onKeyDown={(e) => onKey(i, e)}
+                        onFocus={(e) => e.target.select()}
+                        initial={{ opacity: 0, y: 14 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.08 + i * 0.04, type: 'spring', stiffness: 220, damping: 18 }}
                       />
                     ))}
                   </motion.div>
-                  <AnimatePresence>{error && <motion.p className="err" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>{error}</motion.p>}</AnimatePresence>
 
-                  <motion.button className="primaryBtn" disabled={otp.some((x) => !x) || busy === 'verify'} onClick={() => verify(otp.join(''))} whileTap={{ scale: 0.97 }}>
-                    {busy === 'verify' ? <i className="spinner" /> : <>Verify &amp; log in <ArrowRight size={18} /></>}
+                  <AnimatePresence>
+                    {error && (
+                      <motion.p
+                        className="err"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                      >
+                        {error}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+
+                  <motion.button
+                    className="sendOtpBtn"
+                    disabled={otp.some((x) => !x) || busy === 'verify'}
+                    onClick={() => verify(otp.join(''))}
+                    whileHover={!otp.some((x) => !x) ? { scale: 1.015 } : {}}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {busy === 'verify' ? <i className="spinner" /> : <><span>Verify &amp; log in</span> <ArrowRight size={18} /></>}
                   </motion.button>
 
                   <p className="resend">
@@ -481,14 +656,26 @@ export default function Login({ onLogin }) {
               {step === 'done' && (
                 <motion.div key="done" className="successWrap" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit">
                   <motion.div className="successRing" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 14 }}>
-                    <svg viewBox="0 0 52 52" width="64" height="64">
-                      <motion.path d="M14 27l8 8 16-17" fill="none" stroke="#fff" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.3, duration: 0.5 }} />
+                    <svg viewBox="0 0 52 52" width="60" height="60">
+                      <motion.path
+                        d="M14 27l8 8 16-17"
+                        fill="none"
+                        stroke="#fff"
+                        strokeWidth="4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1 }}
+                        transition={{ delay: 0.25, duration: 0.5, ease: 'easeOut' }}
+                      />
                     </svg>
                     <motion.span className="pulseRing" animate={{ scale: [1, 1.8], opacity: [0.6, 0] }} transition={{ duration: 1.4, repeat: Infinity }} />
                   </motion.div>
                   <h1>You&apos;re in</h1>
                   <p className="sub">Loading your forecast…</p>
-                  <div className="bar"><motion.i initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 1.5, ease: 'easeInOut' }} /></div>
+                  <div className="bar">
+                    <motion.i initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ duration: 1.5, ease: 'easeInOut' }} />
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
