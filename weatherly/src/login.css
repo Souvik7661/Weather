@@ -1,20 +1,28 @@
 /* ==========================================================================
-   Weatherly Premium Ultra-Glassmorphic Login Styles
-   True crystal frosted glass transparency + rich Framer Motion animations
+   Weatherly Boxy Glassmorphism Login Styles
+   Matching exact UI specification: crisp transparent glass box & rich motion
    ========================================================================== */
 
-/* Subtle ambient vignette: keeps bridge scenery vibrant and crisp */
+/* Fullscreen background scenery */
 .vignette {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
   background:
-    radial-gradient(130% 100% at 50% 45%, transparent 45%, rgba(3, 5, 14, 0.42) 100%),
-    linear-gradient(180deg, rgba(4, 6, 16, 0.1) 0%, transparent 40%, rgba(3, 4, 12, 0.45) 100%);
+    radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(4, 7, 18, 0.35) 100%),
+    linear-gradient(180deg, rgba(6, 9, 22, 0.15) 0%, transparent 35%, rgba(4, 6, 16, 0.35) 100%);
 }
 
-/* Floor reflection glow beneath the card */
 .loginFloorReflection {
-  position: fixed; left: 0; right: 0; bottom: 0; height: 160px; z-index: 0; pointer-events: none;
-  background: linear-gradient(180deg, transparent 0%, rgba(255, 120, 40, 0.08) 50%, rgba(3, 4, 12, 0.7) 100%);
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 140px;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 120, 40, 0.06) 40%, rgba(3, 4, 12, 0.6) 100%);
 }
 
 /* Outer Shell */
@@ -29,37 +37,37 @@
   perspective: 1400px;
 }
 
-/* Glass Card: True crystal frosted glass transparency */
+/* Glass Card: Boxy Glassmorphic Container */
 .loginCard {
   position: relative;
   width: min(940px, 94vw);
-  min-height: 570px;
+  min-height: 560px;
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  border-radius: 34px;
+  border-radius: 28px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(22, 30, 60, 0.22);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   box-shadow:
-    0 35px 80px rgba(0, 0, 0, 0.5),
-    0 12px 30px rgba(0, 0, 0, 0.3),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.42),
+    0 30px 80px rgba(0, 0, 0, 0.5),
+    0 10px 25px rgba(0, 0, 0, 0.3),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.4),
     inset 0 -1px 2px rgba(255, 255, 255, 0.08);
   transform-style: preserve-3d;
 }
 
-/* Glass Card Under-Glow: Warm reflection from dusk horizon */
+/* Card Under-Glow (Warm reflection from sunset horizon) */
 .loginCard::after {
   content: '';
   position: absolute;
-  bottom: -22px;
+  bottom: -20px;
   left: 15%;
   right: 15%;
-  height: 45px;
-  background: radial-gradient(ellipse at center, rgba(255, 145, 60, 0.3), transparent 70%);
-  filter: blur(22px);
+  height: 40px;
+  background: radial-gradient(ellipse at center, rgba(255, 140, 60, 0.28), transparent 70%);
+  filter: blur(20px);
   pointer-events: none;
   z-index: -1;
 }
@@ -69,11 +77,11 @@
    ========================================================================== */
 .brandPane {
   position: relative;
-  padding: 38px 36px 34px 38px;
+  padding: 36px 36px 32px 36px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 160, 90, 0.04) 50%, rgba(20, 25, 55, 0.12) 100%);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 140, 70, 0.04) 50%, rgba(20, 25, 55, 0.14) 100%);
   border-right: 1px solid rgba(255, 255, 255, 0.16);
 }
 
@@ -102,7 +110,7 @@
 .brandLogoText small {
   display: block;
   font-size: 0.78rem;
-  color: rgba(220, 230, 255, 0.7);
+  color: rgba(220, 230, 255, 0.75);
   font-weight: 400;
   margin-top: 1px;
 }
@@ -110,7 +118,7 @@
 /* Center 3D Orb Area */
 .brandOrbCenter {
   position: relative;
-  height: 260px;
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -119,19 +127,19 @@
 
 .orbHaloGlow {
   position: absolute;
-  width: 230px;
-  height: 230px;
+  width: 210px;
+  height: 210px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 160, 50, 0.38) 0%, rgba(255, 120, 30, 0.14) 50%, transparent 72%);
-  filter: blur(28px);
+  background: radial-gradient(circle, rgba(255, 170, 60, 0.35) 0%, rgba(255, 120, 30, 0.12) 50%, transparent 72%);
+  filter: blur(26px);
   pointer-events: none;
 }
 
 .brandOrbImg {
-  width: 240px;
-  height: 240px;
+  width: 220px;
+  height: 220px;
   object-fit: contain;
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
   z-index: 2;
   pointer-events: none;
   user-select: none;
@@ -145,30 +153,24 @@
   gap: 10px;
   padding: 8px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.09);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   z-index: 5;
   white-space: nowrap;
   cursor: pointer;
-  transition: box-shadow 0.25s, border-color 0.25s;
-}
-
-.glassChip:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .chipHumidity {
-  top: 12px;
-  right: 18px;
+  top: 10px;
+  right: 14px;
 }
 
 .chipAqi {
-  bottom: 20px;
-  left: 12px;
+  bottom: 16px;
+  left: 10px;
 }
 
 .chipIconWrap {
@@ -177,18 +179,18 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .chipIconWrap.droplet {
   color: #54a6ff;
-  box-shadow: 0 0 12px rgba(84, 166, 255, 0.35);
+  box-shadow: 0 0 12px rgba(84, 166, 255, 0.4);
 }
 
 .chipIconWrap.leaf {
   color: #34d399;
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
 }
 
 .chipMeta {
@@ -199,7 +201,7 @@
 
 .chipTitle {
   font-size: 0.72rem;
-  color: rgba(225, 235, 255, 0.75);
+  color: rgba(225, 235, 255, 0.78);
   font-weight: 400;
 }
 
@@ -237,7 +239,7 @@
 .brandDesc {
   margin-top: 8px;
   font-size: 0.85rem;
-  color: rgba(225, 235, 255, 0.75);
+  color: rgba(225, 235, 255, 0.78);
   line-height: 1.45;
   max-width: 320px;
 }
@@ -253,7 +255,7 @@
 .brandPills .pill {
   height: 4px;
   border-radius: 2px;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.28);
   width: 14px;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -261,7 +263,7 @@
 .brandPills .pill.active {
   width: 24px;
   background: #3b82f6;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.75);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.8);
 }
 
 /* ==========================================================================
@@ -269,14 +271,14 @@
    ========================================================================== */
 .formPane {
   position: relative;
-  padding: 42px 42px 34px;
+  padding: 40px 40px 32px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  min-height: 570px;
-  background: rgba(14, 18, 38, 0.28);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  min-height: 560px;
+  background: rgba(12, 16, 36, 0.34);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   overflow: hidden;
 }
 
@@ -294,9 +296,9 @@
 
 .formSub {
   font-size: 1.02rem;
-  color: rgba(220, 230, 255, 0.78);
+  color: rgba(220, 230, 255, 0.8);
   margin-top: 6px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 }
 
 .formSub b {
@@ -314,7 +316,7 @@
   display: block;
   font-size: 0.88rem;
   font-weight: 500;
-  color: rgba(230, 238, 255, 0.85);
+  color: rgba(230, 238, 255, 0.88);
   margin-bottom: 8px;
 }
 
@@ -325,24 +327,24 @@
   align-items: center;
   height: 56px;
   padding: 0 16px 0 14px;
-  border-radius: 18px;
+  border-radius: 16px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
 
 .unifiedField:focus-within {
   border-color: rgba(110, 150, 255, 0.95);
-  box-shadow: 0 0 0 4px rgba(70, 115, 255, 0.24);
+  box-shadow: 0 0 0 4px rgba(70, 115, 255, 0.26);
   background: rgba(255, 255, 255, 0.12);
 }
 
 .unifiedField.bad {
   border-color: #ff6b7a;
-  box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.2);
-  background: rgba(255, 77, 94, 0.1);
+  box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.22);
+  background: rgba(255, 77, 94, 0.12);
 }
 
 /* Country Trigger */
@@ -368,7 +370,7 @@
 }
 
 .chevron {
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.7);
   margin-left: 2px;
 }
 
@@ -391,7 +393,7 @@
 .fieldSep {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   margin: 0 14px;
 }
 
@@ -405,7 +407,7 @@
 }
 
 .phoneIcon {
-  color: rgba(210, 225, 255, 0.6);
+  color: rgba(210, 225, 255, 0.65);
   flex-shrink: 0;
 }
 
@@ -423,7 +425,7 @@
 }
 
 .phoneInputWrap input::placeholder {
-  color: rgba(220, 230, 255, 0.38);
+  color: rgba(220, 230, 255, 0.42);
 }
 
 /* Green Tick Indicator */
@@ -436,7 +438,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.65);
 }
 
 .err {
@@ -446,7 +448,7 @@
   overflow: hidden;
 }
 
-/* Send OTP Button */
+/* Send OTP Button (Solid Rich Royal Blue Gradient) */
 .sendOtpBtn {
   position: relative;
   display: flex;
@@ -456,19 +458,20 @@
   width: 100%;
   height: 54px;
   margin-top: 14px;
-  border-radius: 18px;
+  border-radius: 16px;
   font-size: 1.02rem;
   font-weight: 600;
-  color: #fff;
-  background: linear-gradient(90deg, #2b6bf5 0%, #3976ff 50%, #4784ff 100%);
-  box-shadow: 0 10px 28px rgba(43, 107, 245, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: #ffffff !important;
+  background: linear-gradient(90deg, #276ffd 0%, #3b82f6 100%) !important;
+  box-shadow: 0 10px 28px rgba(39, 111, 253, 0.52), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
   overflow: hidden;
   cursor: pointer;
+  border: 0;
   transition: opacity 0.2s, filter 0.2s;
 }
 
 .sendOtpBtn:disabled {
-  opacity: 0.45;
+  opacity: 0.55;
   cursor: not-allowed;
   filter: saturate(0.6);
 }
@@ -488,7 +491,7 @@
   align-items: center;
   gap: 14px;
   margin: 22px 0;
-  color: rgba(220, 230, 255, 0.48);
+  color: rgba(220, 230, 255, 0.55);
   font-size: 0.86rem;
 }
 
@@ -497,7 +500,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
 }
 
 /* Google Sign-In Button */
@@ -508,18 +511,19 @@
   gap: 12px;
   width: 100%;
   height: 52px;
-  border-radius: 18px;
+  border-radius: 16px;
   font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
-  background: #ffffff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  color: #1e293b !important;
+  background: #ffffff !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+  border: 0;
   cursor: pointer;
   transition: background 0.2s;
 }
 
 .googleAuthBtn:hover {
-  background: #f8fafc;
+  background: #f8fafc !important;
 }
 
 .googleAuthBtn:disabled {
@@ -535,18 +539,18 @@
   gap: 7px;
   margin-top: 24px;
   font-size: 0.77rem;
-  color: rgba(220, 230, 255, 0.58);
+  color: rgba(220, 230, 255, 0.62);
   text-align: center;
 }
 
 .legalTerms a {
-  color: rgba(235, 245, 255, 0.9);
+  color: rgba(235, 245, 255, 0.92);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .shieldIcon {
-  color: rgba(220, 230, 255, 0.58);
+  color: rgba(220, 230, 255, 0.62);
   flex-shrink: 0;
 }
 
@@ -576,15 +580,15 @@
   padding: 6px 12px 6px 8px;
   border-radius: 14px;
   font-size: 0.88rem;
-  color: rgba(220, 230, 255, 0.75);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(220, 230, 255, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .backBtn:hover {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
   color: #fff;
 }
 
@@ -603,7 +607,7 @@
   font-weight: 600;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   caret-color: #ffb454;
@@ -611,24 +615,24 @@
 
 .otpRow input:focus {
   border-color: rgba(255, 180, 84, 0.95);
-  box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.25);
+  box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.28);
   background: rgba(255, 255, 255, 0.14);
 }
 
 .otpRow input.filled {
-  background: rgba(59, 130, 246, 0.22);
-  border-color: rgba(96, 165, 250, 0.85);
+  background: rgba(59, 130, 246, 0.24);
+  border-color: rgba(96, 165, 250, 0.9);
 }
 
 .otpRow input.bad {
   border-color: #ff6b7a;
-  background: rgba(255, 77, 94, 0.16);
+  background: rgba(255, 77, 94, 0.18);
 }
 
 .resend {
   margin-top: 18px;
   text-align: center;
-  color: rgba(220, 230, 255, 0.68);
+  color: rgba(220, 230, 255, 0.72);
   font-size: 0.92rem;
 }
 
@@ -649,7 +653,7 @@
   margin-top: 6px;
   text-align: center;
   font-size: 0.78rem;
-  color: rgba(228, 233, 255, 0.45);
+  color: rgba(228, 233, 255, 0.5);
 }
 
 /* ==========================================================================
@@ -701,7 +705,7 @@
   height: 5px;
   margin-top: 20px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
   overflow: hidden;
 }
 
@@ -728,7 +732,7 @@
   }
   .brandPane {
     border-right: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.16);
     padding: 26px 24px 20px;
   }
   .brandOrbCenter {
