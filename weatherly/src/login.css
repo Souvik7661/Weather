@@ -1,21 +1,20 @@
 /* ==========================================================================
-   Weatherly Premium Glassmorphic Login Styles
-   Matching exact UI specification with Framer Motion animations
+   Weatherly Premium Ultra-Glassmorphic Login Styles
+   True crystal frosted glass transparency + rich Framer Motion animations
    ========================================================================== */
 
-/* Scene vignette & floor reflection */
+/* Subtle ambient vignette: keeps bridge scenery vibrant and crisp */
 .vignette {
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background:
-    radial-gradient(120% 90% at 50% 35%, transparent 30%, rgba(3, 5, 14, 0.65)),
-    linear-gradient(180deg, rgba(4, 6, 16, 0.25) 0%, rgba(4, 6, 16, 0.6) 100%);
+    radial-gradient(130% 100% at 50% 45%, transparent 45%, rgba(3, 5, 14, 0.42) 100%),
+    linear-gradient(180deg, rgba(4, 6, 16, 0.1) 0%, transparent 40%, rgba(3, 4, 12, 0.45) 100%);
 }
 
+/* Floor reflection glow beneath the card */
 .loginFloorReflection {
-  position: fixed; left: 0; right: 0; bottom: 0; height: 180px; z-index: 0; pointer-events: none;
-  background: linear-gradient(180deg, transparent, rgba(6, 9, 24, 0.5) 40%, rgba(3, 4, 12, 0.88) 100%);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  position: fixed; left: 0; right: 0; bottom: 0; height: 160px; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 120, 40, 0.08) 50%, rgba(3, 4, 12, 0.7) 100%);
 }
 
 /* Outer Shell */
@@ -27,38 +26,40 @@
   align-items: center;
   justify-content: center;
   padding: 30px 24px;
+  perspective: 1400px;
 }
 
-/* Glass Card */
+/* Glass Card: True crystal frosted glass transparency */
 .loginCard {
   position: relative;
-  width: min(940px, 100%);
+  width: min(940px, 94vw);
   min-height: 570px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.05fr 1fr;
   border-radius: 34px;
   overflow: hidden;
-  background: rgba(14, 18, 38, 0.42);
-  backdrop-filter: blur(36px) saturate(190%);
-  -webkit-backdrop-filter: blur(36px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   box-shadow:
-    0 35px 80px rgba(0, 0, 0, 0.6),
-    0 10px 30px rgba(0, 0, 0, 0.35),
-    inset 0 1px 1px rgba(255, 255, 255, 0.32),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.25);
+    0 35px 80px rgba(0, 0, 0, 0.5),
+    0 12px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.42),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.08);
+  transform-style: preserve-3d;
 }
 
-/* Glass Card Under-Glow (Warm reflection from dusk horizon) */
+/* Glass Card Under-Glow: Warm reflection from dusk horizon */
 .loginCard::after {
   content: '';
   position: absolute;
-  bottom: -20px;
+  bottom: -22px;
   left: 15%;
   right: 15%;
-  height: 40px;
-  background: radial-gradient(ellipse at center, rgba(255, 145, 60, 0.25), transparent 70%);
-  filter: blur(20px);
+  height: 45px;
+  background: radial-gradient(ellipse at center, rgba(255, 145, 60, 0.3), transparent 70%);
+  filter: blur(22px);
   pointer-events: none;
   z-index: -1;
 }
@@ -72,8 +73,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(165deg, rgba(80, 110, 240, 0.14) 0%, rgba(255, 145, 80, 0.08) 55%, rgba(18, 22, 50, 0.22) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 160, 90, 0.04) 50%, rgba(20, 25, 55, 0.12) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 /* Brand Logo */
@@ -86,7 +87,7 @@
 .brandLogoIcon {
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 4px 12px rgba(67, 100, 247, 0.45));
+  filter: drop-shadow(0 4px 12px rgba(67, 100, 247, 0.5));
 }
 
 .brandLogoText b {
@@ -101,7 +102,7 @@
 .brandLogoText small {
   display: block;
   font-size: 0.78rem;
-  color: rgba(220, 230, 255, 0.65);
+  color: rgba(220, 230, 255, 0.7);
   font-weight: 400;
   margin-top: 1px;
 }
@@ -118,10 +119,10 @@
 
 .orbHaloGlow {
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 230px;
+  height: 230px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 160, 50, 0.35) 0%, rgba(255, 120, 30, 0.12) 50%, transparent 72%);
+  background: radial-gradient(circle, rgba(255, 160, 50, 0.38) 0%, rgba(255, 120, 30, 0.14) 50%, transparent 72%);
   filter: blur(28px);
   pointer-events: none;
 }
@@ -130,7 +131,7 @@
   width: 240px;
   height: 240px;
   object-fit: contain;
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.5));
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.45));
   z-index: 2;
   pointer-events: none;
   user-select: none;
@@ -144,13 +145,20 @@
   gap: 10px;
   padding: 8px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.28);
   z-index: 5;
   white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow 0.25s, border-color 0.25s;
+}
+
+.glassChip:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .chipHumidity {
@@ -170,7 +178,7 @@
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.16);
 }
 
 .chipIconWrap.droplet {
@@ -191,7 +199,7 @@
 
 .chipTitle {
   font-size: 0.72rem;
-  color: rgba(225, 235, 255, 0.7);
+  color: rgba(225, 235, 255, 0.75);
   font-weight: 400;
 }
 
@@ -229,7 +237,7 @@
 .brandDesc {
   margin-top: 8px;
   font-size: 0.85rem;
-  color: rgba(225, 235, 255, 0.7);
+  color: rgba(225, 235, 255, 0.75);
   line-height: 1.45;
   max-width: 320px;
 }
@@ -266,6 +274,9 @@
   flex-direction: column;
   justify-content: center;
   min-height: 570px;
+  background: rgba(14, 18, 38, 0.28);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   overflow: hidden;
 }
 
@@ -283,7 +294,7 @@
 
 .formSub {
   font-size: 1.02rem;
-  color: rgba(220, 230, 255, 0.75);
+  color: rgba(220, 230, 255, 0.78);
   margin-top: 6px;
   margin-bottom: 26px;
 }
@@ -303,7 +314,7 @@
   display: block;
   font-size: 0.88rem;
   font-weight: 500;
-  color: rgba(230, 238, 255, 0.82);
+  color: rgba(230, 238, 255, 0.85);
   margin-bottom: 8px;
 }
 
@@ -316,20 +327,22 @@
   padding: 0 16px 0 14px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
 }
 
 .unifiedField:focus-within {
-  border-color: rgba(110, 150, 255, 0.9);
-  box-shadow: 0 0 0 4px rgba(70, 115, 255, 0.22);
-  background: rgba(255, 255, 255, 0.11);
+  border-color: rgba(110, 150, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(70, 115, 255, 0.24);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .unifiedField.bad {
   border-color: #ff6b7a;
-  box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.18);
-  background: rgba(255, 77, 94, 0.08);
+  box-shadow: 0 0 0 4px rgba(255, 77, 94, 0.2);
+  background: rgba(255, 77, 94, 0.1);
 }
 
 /* Country Trigger */
@@ -355,7 +368,7 @@
 }
 
 .chevron {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.65);
   margin-left: 2px;
 }
 
@@ -378,7 +391,7 @@
 .fieldSep {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
   margin: 0 14px;
 }
 
@@ -392,7 +405,7 @@
 }
 
 .phoneIcon {
-  color: rgba(210, 225, 255, 0.55);
+  color: rgba(210, 225, 255, 0.6);
   flex-shrink: 0;
 }
 
@@ -410,7 +423,7 @@
 }
 
 .phoneInputWrap input::placeholder {
-  color: rgba(220, 230, 255, 0.35);
+  color: rgba(220, 230, 255, 0.38);
 }
 
 /* Green Tick Indicator */
@@ -423,7 +436,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.55);
+  box-shadow: 0 0 14px rgba(34, 197, 94, 0.6);
 }
 
 .err {
@@ -448,8 +461,9 @@
   font-weight: 600;
   color: #fff;
   background: linear-gradient(90deg, #2b6bf5 0%, #3976ff 50%, #4784ff 100%);
-  box-shadow: 0 10px 26px rgba(43, 107, 245, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  box-shadow: 0 10px 28px rgba(43, 107, 245, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   overflow: hidden;
+  cursor: pointer;
   transition: opacity 0.2s, filter 0.2s;
 }
 
@@ -463,9 +477,9 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.32) 50%, transparent 70%);
   transform: translateX(-120%);
-  animation: sweep 4s ease-in-out infinite;
+  animation: sweep 3.5s ease-in-out infinite;
 }
 
 /* Or Divider */
@@ -474,7 +488,7 @@
   align-items: center;
   gap: 14px;
   margin: 22px 0;
-  color: rgba(220, 230, 255, 0.45);
+  color: rgba(220, 230, 255, 0.48);
   font-size: 0.86rem;
 }
 
@@ -483,7 +497,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 /* Google Sign-In Button */
@@ -499,7 +513,8 @@
   font-weight: 600;
   color: #1e293b;
   background: #ffffff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
   transition: background 0.2s;
 }
 
@@ -520,18 +535,18 @@
   gap: 7px;
   margin-top: 24px;
   font-size: 0.77rem;
-  color: rgba(220, 230, 255, 0.55);
+  color: rgba(220, 230, 255, 0.58);
   text-align: center;
 }
 
 .legalTerms a {
-  color: rgba(235, 245, 255, 0.85);
+  color: rgba(235, 245, 255, 0.9);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .shieldIcon {
-  color: rgba(220, 230, 255, 0.55);
+  color: rgba(220, 230, 255, 0.58);
   flex-shrink: 0;
 }
 
@@ -561,14 +576,15 @@
   padding: 6px 12px 6px 8px;
   border-radius: 14px;
   font-size: 0.88rem;
-  color: rgba(220, 230, 255, 0.7);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(220, 230, 255, 0.75);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 
 .backBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
 }
 
@@ -587,7 +603,7 @@
   font-weight: 600;
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   color: #fff;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   caret-color: #ffb454;
@@ -596,7 +612,7 @@
 .otpRow input:focus {
   border-color: rgba(255, 180, 84, 0.95);
   box-shadow: 0 0 0 4px rgba(255, 180, 84, 0.25);
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
 }
 
 .otpRow input.filled {
@@ -612,7 +628,7 @@
 .resend {
   margin-top: 18px;
   text-align: center;
-  color: rgba(220, 230, 255, 0.65);
+  color: rgba(220, 230, 255, 0.68);
   font-size: 0.92rem;
 }
 
@@ -626,13 +642,14 @@
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .hint {
   margin-top: 6px;
   text-align: center;
   font-size: 0.78rem;
-  color: rgba(228, 233, 255, 0.4);
+  color: rgba(228, 233, 255, 0.45);
 }
 
 /* ==========================================================================
@@ -656,7 +673,7 @@
   margin-bottom: 18px;
   border-radius: 50%;
   background: linear-gradient(135deg, #10b981, #22c55e);
-  box-shadow: 0 14px 40px rgba(34, 197, 94, 0.45);
+  box-shadow: 0 14px 40px rgba(34, 197, 94, 0.5);
 }
 
 .pulseRing {
@@ -664,6 +681,13 @@
   inset: -6px;
   border-radius: 50%;
   border: 2px solid #22c55e;
+}
+
+.pulseRing2 {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(34, 197, 94, 0.6);
 }
 
 .successWrap h1 {
@@ -677,7 +701,7 @@
   height: 5px;
   margin-top: 20px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
   overflow: hidden;
 }
 
@@ -704,7 +728,7 @@
   }
   .brandPane {
     border-right: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.14);
     padding: 26px 24px 20px;
   }
   .brandOrbCenter {

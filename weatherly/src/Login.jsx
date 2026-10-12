@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion, useAnimationControls } from 'framer-motion';
+import { AnimatePresence, motion, useAnimationControls, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowLeft, ArrowRight, Check, ChevronDown, Cloud, Droplet, Leaf, Phone, ShieldCheck } from 'lucide-react';
 import Scene from './Scene.jsx';
 import './login.css';
@@ -298,6 +298,23 @@ export default function Login({ onLogin }) {
   const valid = digits.length === country.len;
   const shown = country.len === 10 && digits.length > 5 ? `${digits.slice(0, 5)} ${digits.slice(5)}` : digits;
 
+  /* 3D Interactive Mouse Tilt */
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const smoothX = useSpring(mouseX, { stiffness: 45, damping: 20 });
+  const smoothY = useSpring(mouseY, { stiffness: 45, damping: 20 });
+  const cardRotateX = useTransform(smoothY, [-0.5, 0.5], [4, -4]);
+  const cardRotateY = useTransform(smoothX, [-0.5, 0.5], [-5, 5]);
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      mouseX.set(e.clientX / window.innerWidth - 0.5);
+      mouseY.set(e.clientY / window.innerHeight - 0.5);
+    };
+    window.addEventListener('pointermove', handleMove);
+    return () => window.removeEventListener('pointermove', handleMove);
+  }, [mouseX, mouseY]);
+
   /* resend countdown */
   useEffect(() => {
     if (step !== 'otp' || left <= 0) return undefined;
@@ -312,7 +329,7 @@ export default function Login({ onLogin }) {
     return () => clearTimeout(id);
   }, [step, user, onLogin]);
 
-  const fail = (msg) => { setError(msg); shake.start({ x: [0, -10, 10, -8, 8, 0], transition: { duration: 0.45 } }); };
+  const fail = (msg) => { setError(msg); shake.start({ x: [0, -12, 12, -8, 8, -4, 4, 0], transition: { duration: 0.45 } }); };
 
   const send = async (e) => {
     e?.preventDefault();
@@ -377,12 +394,22 @@ export default function Login({ onLogin }) {
       <div className="loginFloorReflection" />
 
       <main className="loginShell">
-        <motion.div className="loginCard" variants={card} initial="hidden" animate="show">
+        <motion.div
+          className="loginCard"
+          variants={card}
+          initial="hidden"
+          animate="show"
+          style={{ rotateX: cardRotateX, rotateY: cardRotateY }}
+        >
           {/* ---------- brand pane (left) ---------- */}
           <aside className="brandPane">
             {/* Logo */}
             <motion.div variants={item} className="brandLogo">
-              <div className="brandLogoIcon">
+              <motion.div
+                className="brandLogoIcon"
+                animate={{ y: [0, -3.5, 0] }}
+                transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
+              >
                 <svg width="36" height="26" viewBox="0 0 42 32" fill="none">
                   <defs>
                     <linearGradient id="brandCloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -400,7 +427,7 @@ export default function Login({ onLogin }) {
                     filter="url(#brandCloudShadow)"
                   />
                 </svg>
-              </div>
+              </motion.div>
               <div className="brandLogoText">
                 <b>Weatherly</b>
                 <small>See Beyond the Sky</small>
@@ -409,20 +436,30 @@ export default function Login({ onLogin }) {
 
             {/* Center 3D Weather Orb with floating chips */}
             <motion.div variants={item} className="brandOrbCenter">
-              <div className="orbHaloGlow" />
+              <motion.div
+                className="orbHaloGlow"
+                animate={{ scale: [0.95, 1.12, 0.95], opacity: [0.35, 0.55, 0.35] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
               <motion.img
                 src="/assets/sun_cloud_3d.png"
                 alt="3D Weather Orb"
                 className="brandOrbImg"
-                animate={{ y: [0, -8, 0], scale: [1, 1.015, 1] }}
-                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{
+                  y: [0, -10, 0],
+                  rotate: [-0.8, 0.8, -0.8],
+                  scale: [1, 1.02, 1],
+                }}
+                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
               />
 
               {/* Top-Right Humidity Chip */}
               <motion.div
                 className="glassChip chipHumidity"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
+                animate={{ y: [0, -7, 0] }}
+                transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+                whileHover={{ scale: 1.06, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                whileTap={{ scale: 0.96 }}
               >
                 <div className="chipIconWrap droplet">
                   <Droplet size={16} fill="#54a6ff" color="#8bc4ff" />
@@ -436,8 +473,10 @@ export default function Login({ onLogin }) {
               {/* Bottom-Left AQI Chip */}
               <motion.div
                 className="glassChip chipAqi"
-                animate={{ y: [0, -7, 0] }}
-                transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.2 }}
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
+                whileHover={{ scale: 1.06, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
+                whileTap={{ scale: 0.96 }}
               >
                 <div className="chipIconWrap leaf">
                   <Leaf size={15} fill="#34d399" color="#6ee7b7" />
@@ -458,7 +497,17 @@ export default function Login({ onLogin }) {
                 Live radar, hourly updates and air quality for every city you care about.
               </motion.p>
               <motion.div variants={item} className="brandPills">
-                <span className="pill active" />
+                <motion.span
+                  className="pill active"
+                  animate={{
+                    boxShadow: [
+                      '0 0 8px rgba(59, 130, 246, 0.6)',
+                      '0 0 16px rgba(59, 130, 246, 0.95)',
+                      '0 0 8px rgba(59, 130, 246, 0.6)',
+                    ],
+                  }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                />
                 <span className="pill" />
                 <span className="pill" />
                 <span className="pill" />
@@ -521,10 +570,10 @@ export default function Login({ onLogin }) {
                         {valid && (
                           <motion.span
                             className="greenTick"
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0, opacity: 0 }}
-                            transition={{ type: 'spring', stiffness: 350, damping: 20 }}
+                            initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                            exit={{ scale: 0, opacity: 0, rotate: 45 }}
+                            transition={{ type: 'spring', stiffness: 450, damping: 18 }}
                           >
                             <Check size={13} strokeWidth={3} />
                           </motion.span>
@@ -549,8 +598,8 @@ export default function Login({ onLogin }) {
                       type="submit"
                       className="sendOtpBtn"
                       disabled={!valid || !!busy}
-                      whileHover={valid ? { scale: 1.015, boxShadow: '0 12px 30px rgba(47, 107, 244, 0.55)' } : {}}
-                      whileTap={valid ? { scale: 0.98 } : {}}
+                      whileHover={valid ? { scale: 1.02, boxShadow: '0 14px 34px rgba(43, 107, 245, 0.58)' } : {}}
+                      whileTap={valid ? { scale: 0.975 } : {}}
                     >
                       {busy === 'send' ? (
                         <i className="spinner" />
@@ -571,7 +620,7 @@ export default function Login({ onLogin }) {
                     className="googleAuthBtn"
                     onClick={google}
                     disabled={!!busy}
-                    whileHover={{ scale: 1.015 }}
+                    whileHover={{ scale: 1.02, y: -1, boxShadow: '0 10px 28px rgba(0, 0, 0, 0.35)' }}
                     whileTap={{ scale: 0.98 }}
                   >
                     {busy === 'google' ? (
@@ -595,7 +644,14 @@ export default function Login({ onLogin }) {
 
               {step === 'otp' && (
                 <motion.div key="otp" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit" className="formContent">
-                  <button className="backBtn" onClick={back}><ArrowLeft size={16} /> Change number</button>
+                  <motion.button
+                    className="backBtn"
+                    onClick={back}
+                    whileHover={{ scale: 1.04, x: -2 }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    <ArrowLeft size={16} /> Change number
+                  </motion.button>
                   <div className="formHeader">
                     <h1>Enter the code</h1>
                     <p className="formSub">We sent a 6-digit code to <b>{country.dial} {shown}</b>.</p>
@@ -616,9 +672,10 @@ export default function Login({ onLogin }) {
                         onChange={(e) => setDigit(i, e.target.value)}
                         onKeyDown={(e) => onKey(i, e)}
                         onFocus={(e) => e.target.select()}
-                        initial={{ opacity: 0, y: 14 }}
+                        initial={{ opacity: 0, y: 16 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.08 + i * 0.04, type: 'spring', stiffness: 220, damping: 18 }}
+                        whileFocus={{ scale: 1.06 }}
+                        transition={{ delay: 0.08 + i * 0.04, type: 'spring', stiffness: 240, damping: 18 }}
                       />
                     ))}
                   </motion.div>
@@ -640,8 +697,8 @@ export default function Login({ onLogin }) {
                     className="sendOtpBtn"
                     disabled={otp.some((x) => !x) || busy === 'verify'}
                     onClick={() => verify(otp.join(''))}
-                    whileHover={!otp.some((x) => !x) ? { scale: 1.015 } : {}}
-                    whileTap={{ scale: 0.98 }}
+                    whileHover={!otp.some((x) => !x) ? { scale: 1.02, boxShadow: '0 14px 34px rgba(43, 107, 245, 0.58)' } : {}}
+                    whileTap={{ scale: 0.975 }}
                   >
                     {busy === 'verify' ? <i className="spinner" /> : <><span>Verify &amp; log in</span> <ArrowRight size={18} /></>}
                   </motion.button>
@@ -655,7 +712,7 @@ export default function Login({ onLogin }) {
 
               {step === 'done' && (
                 <motion.div key="done" className="successWrap" custom={dir} variants={slide} initial="initial" animate="animate" exit="exit">
-                  <motion.div className="successRing" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 200, damping: 14 }}>
+                  <motion.div className="successRing" initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 220, damping: 14 }}>
                     <svg viewBox="0 0 52 52" width="60" height="60">
                       <motion.path
                         d="M14 27l8 8 16-17"
@@ -666,10 +723,11 @@ export default function Login({ onLogin }) {
                         strokeLinejoin="round"
                         initial={{ pathLength: 0 }}
                         animate={{ pathLength: 1 }}
-                        transition={{ delay: 0.25, duration: 0.5, ease: 'easeOut' }}
+                        transition={{ delay: 0.22, duration: 0.55, ease: 'easeOut' }}
                       />
                     </svg>
-                    <motion.span className="pulseRing" animate={{ scale: [1, 1.8], opacity: [0.6, 0] }} transition={{ duration: 1.4, repeat: Infinity }} />
+                    <motion.span className="pulseRing" animate={{ scale: [1, 1.8], opacity: [0.7, 0] }} transition={{ duration: 1.5, repeat: Infinity }} />
+                    <motion.span className="pulseRing2" animate={{ scale: [1, 2.2], opacity: [0.5, 0] }} transition={{ duration: 1.5, repeat: Infinity, delay: 0.4 }} />
                   </motion.div>
                   <h1>You&apos;re in</h1>
                   <p className="sub">Loading your forecast…</p>

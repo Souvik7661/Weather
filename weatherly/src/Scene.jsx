@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from
 /*  Determine Background Image 100% Dynamically by World Live Weather  */
 /* ------------------------------------------------------------------ */
 function resolveBackground({ current, city, phase, now, day }) {
-  if (!current) return '/assets/bg_sunset_bridge.jpg';
+  if (!current) return '/assets/login_dusk_bg.jpg';
 
   const kind = current.kind || 'partly';
   const isDay = current.isDay;
@@ -20,7 +20,7 @@ function resolveBackground({ current, city, phase, now, day }) {
     return '/assets/bg_sunrise.jpg';
   }
   if (phase === 'dusk') {
-    return '/assets/bg_sunset_bridge.jpg';
+    return '/assets/login_dusk_bg.jpg';
   }
 
   // 3. Nighttime: If currently night at that location
