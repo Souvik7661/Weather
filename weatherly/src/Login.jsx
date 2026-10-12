@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useAnimationControls, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, ChevronDown, Cloud, Droplet, Leaf, Phone, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ChevronDown, Phone, ShieldCheck } from 'lucide-react';
 import Scene from './Scene.jsx';
 import './login.css';
 
@@ -405,82 +405,95 @@ export default function Login({ onLogin }) {
           <aside className="brandPane">
             {/* Logo */}
             <motion.div variants={item} className="brandLogo">
-              <motion.div
-                className="brandLogoIcon"
+              <motion.img
+                src="/assets/logo_cloud_3d.png"
+                alt="Weatherly Cloud"
+                className="brandLogoCloud"
                 animate={{ y: [0, -3.5, 0] }}
-                transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <svg width="36" height="26" viewBox="0 0 42 32" fill="none">
-                  <defs>
-                    <linearGradient id="brandCloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#9cb5ff" />
-                      <stop offset="50%" stopColor="#6988ff" />
-                      <stop offset="100%" stopColor="#4364f7" />
-                    </linearGradient>
-                    <filter id="brandCloudShadow" x="-20%" y="-20%" width="140%" height="140%">
-                      <feDropShadow dx="0" dy="3" stdDeviation="4" floodColor="#3352d0" floodOpacity="0.45" />
-                    </filter>
-                  </defs>
-                  <path
-                    d="M10.5 28h21a8.5 8.5 0 0 0 2-16.7A12 12 0 0 0 10.8 11.5 8.5 8.5 0 0 0 10.5 28z"
-                    fill="url(#brandCloudGrad)"
-                    filter="url(#brandCloudShadow)"
-                  />
-                </svg>
-              </motion.div>
+                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+              />
               <div className="brandLogoText">
                 <b>Weatherly</b>
                 <small>See Beyond the Sky</small>
               </div>
             </motion.div>
 
-            {/* Center 3D Weather Orb with floating chips */}
+            {/* Center 3D Weather Orb with Concentric Orbital Rings */}
             <motion.div variants={item} className="brandOrbCenter">
+              {/* Concentric Glowing Orbital Rings */}
+              <svg className="orbitalRings" viewBox="0 0 320 320" fill="none">
+                <circle cx="160" cy="160" r="132" stroke="rgba(255, 255, 255, 0.16)" strokeWidth="1" strokeDasharray="5 7" />
+                <circle cx="160" cy="160" r="132" stroke="url(#orbitGradOuter)" strokeWidth="1.6" strokeDasharray="110 320" strokeLinecap="round" />
+                
+                <circle cx="160" cy="160" r="102" stroke="rgba(255, 255, 255, 0.22)" strokeWidth="1" strokeDasharray="3 5" />
+                <circle cx="160" cy="160" r="102" stroke="url(#orbitGradInner)" strokeWidth="1.6" strokeDasharray="75 280" strokeDashoffset="-35" strokeLinecap="round" />
+                
+                <defs>
+                  <linearGradient id="orbitGradOuter" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                    <stop offset="50%" stopColor="#9ec5fe" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="orbitGradInner" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+                    <stop offset="60%" stopColor="#ffb86c" stopOpacity="0.6" />
+                    <stop offset="100%" stopColor="#ff9a3c" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+              </svg>
+
+              {/* Floating Mini Cloud on Outer Orbital Track */}
+              <motion.img
+                src="/assets/mini_cloud_3d.png"
+                alt="Mini Cloud"
+                className="miniCloudTop"
+                animate={{ y: [0, -5, 0], x: [0, 2, 0] }}
+                transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut' }}
+              />
+
+              {/* Golden Sun Corona Halo Glow */}
               <motion.div
                 className="orbHaloGlow"
-                animate={{ scale: [0.95, 1.12, 0.95], opacity: [0.35, 0.55, 0.35] }}
+                animate={{ scale: [0.95, 1.1, 0.95], opacity: [0.38, 0.58, 0.38] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
               />
+
+              {/* 3D Sun & Cloud Floating Orb */}
               <motion.img
                 src="/assets/sun_cloud_3d.png"
                 alt="3D Weather Orb"
                 className="brandOrbImg"
                 animate={{
-                  y: [0, -10, 0],
-                  rotate: [-0.8, 0.8, -0.8],
-                  scale: [1, 1.02, 1],
+                  y: [0, -8, 0],
+                  scale: [1, 1.018, 1],
                 }}
-                transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+                transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
               />
 
-              {/* Top-Right Humidity Chip */}
+              {/* Top-Right Humidity Glass Chip */}
               <motion.div
                 className="glassChip chipHumidity"
-                animate={{ y: [0, -7, 0] }}
+                animate={{ y: [0, -6, 0] }}
                 transition={{ duration: 4.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
                 whileHover={{ scale: 1.06, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                 whileTap={{ scale: 0.96 }}
               >
-                <div className="chipIconWrap droplet">
-                  <Droplet size={16} fill="#54a6ff" color="#8bc4ff" />
-                </div>
+                <img src="/assets/chip_droplet_3d.png" alt="Humidity" className="chip3dIcon droplet" />
                 <div className="chipMeta">
                   <span className="chipTitle">Humidity</span>
                   <b className="chipValue">78%</b>
                 </div>
               </motion.div>
 
-              {/* Bottom-Left AQI Chip */}
+              {/* Bottom-Left AQI Glass Chip */}
               <motion.div
                 className="glassChip chipAqi"
-                animate={{ y: [0, -8, 0] }}
+                animate={{ y: [0, -7, 0] }}
                 transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut', delay: 1.1 }}
                 whileHover={{ scale: 1.06, y: -4, transition: { type: 'spring', stiffness: 400, damping: 15 } }}
                 whileTap={{ scale: 0.96 }}
               >
-                <div className="chipIconWrap leaf">
-                  <Leaf size={15} fill="#34d399" color="#6ee7b7" />
-                </div>
+                <img src="/assets/chip_leaf_3d.png" alt="AQI" className="chip3dIcon leaf" />
                 <div className="chipMeta">
                   <b className="chipValue">AQI 78</b>
                   <span className="chipTitle good">Good</span>

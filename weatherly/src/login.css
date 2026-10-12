@@ -10,8 +10,8 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(130% 100% at 50% 45%, transparent 55%, rgba(4, 7, 18, 0.35) 100%),
-    linear-gradient(180deg, rgba(6, 9, 22, 0.15) 0%, transparent 35%, rgba(4, 6, 16, 0.35) 100%);
+    radial-gradient(140% 100% at 50% 50%, transparent 68%, rgba(4, 7, 18, 0.22) 100%),
+    linear-gradient(180deg, rgba(6, 9, 22, 0.08) 0%, transparent 35%, rgba(4, 6, 16, 0.25) 100%);
 }
 
 .loginFloorReflection {
@@ -46,15 +46,16 @@
   grid-template-columns: 1.05fr 1fr;
   border-radius: 28px;
   overflow: hidden;
-  background: rgba(22, 30, 60, 0.22);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.36);
   box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.5),
-    0 10px 25px rgba(0, 0, 0, 0.3),
-    inset 0 1.5px 2px rgba(255, 255, 255, 0.4),
-    inset 0 -1px 2px rgba(255, 255, 255, 0.08);
+    0 30px 80px rgba(0, 0, 0, 0.4),
+    0 10px 25px rgba(0, 0, 0, 0.22),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.65),
+    inset 1.5px 0 2px rgba(255, 255, 255, 0.4),
+    inset 0 -1.5px 2px rgba(255, 255, 255, 0.12);
   transform-style: preserve-3d;
 }
 
@@ -73,7 +74,7 @@
 }
 
 /* ==========================================================================
-   LEFT PANE: Brand Showcase & 3D Weather Orb
+   LEFT PANE: Brand Showcase & 3D Weather Orb (Pure Crystal Glassmorphism)
    ========================================================================== */
 .brandPane {
   position: relative;
@@ -81,8 +82,31 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(165deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 140, 70, 0.04) 50%, rgba(20, 25, 55, 0.14) 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.02) 45%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  backdrop-filter: blur(8px) saturate(160%);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  border-right: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+/* Realistic Diagonal Glass Specular Sheen */
+.brandPane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 28px 0 0 28px;
+  background: linear-gradient(
+    125deg,
+    rgba(255, 255, 255, 0.25) 0%,
+    rgba(255, 255, 255, 0.05) 24%,
+    transparent 52%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Brand Logo */
@@ -90,12 +114,14 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  z-index: 2;
 }
 
-.brandLogoIcon {
-  display: grid;
-  place-items: center;
-  filter: drop-shadow(0 4px 12px rgba(67, 100, 247, 0.5));
+.brandLogoCloud {
+  width: 42px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(70, 110, 255, 0.5));
 }
 
 .brandLogoText b {
@@ -110,7 +136,7 @@
 .brandLogoText small {
   display: block;
   font-size: 0.78rem;
-  color: rgba(220, 230, 255, 0.75);
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
   margin-top: 1px;
 }
@@ -125,72 +151,92 @@
   margin: 10px 0;
 }
 
+/* Concentric Orbital Rings */
+.orbitalRings {
+  position: absolute;
+  width: 290px;
+  height: 290px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.miniCloudTop {
+  position: absolute;
+  top: 18px;
+  right: 58px;
+  width: 46px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.3));
+  pointer-events: none;
+  z-index: 3;
+}
+
 .orbHaloGlow {
   position: absolute;
-  width: 210px;
-  height: 210px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 170, 60, 0.35) 0%, rgba(255, 120, 30, 0.12) 50%, transparent 72%);
-  filter: blur(26px);
+  background: radial-gradient(circle, rgba(255, 180, 60, 0.42) 0%, rgba(255, 130, 40, 0.16) 45%, transparent 70%);
+  filter: blur(24px);
   pointer-events: none;
+  z-index: 1;
 }
 
 .brandOrbImg {
-  width: 220px;
-  height: 220px;
+  width: 210px;
+  height: 210px;
   object-fit: contain;
-  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
   z-index: 2;
   pointer-events: none;
   user-select: none;
 }
 
-/* Floating Glass Chips */
+/* Floating Glass Chips (Crystal Frosted Glass Capsules) */
 .glassChip {
   position: absolute;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 14px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.22),
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 0.7),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.15);
   z-index: 5;
   white-space: nowrap;
   cursor: pointer;
 }
 
 .chipHumidity {
-  top: 10px;
+  top: 12px;
   right: 14px;
 }
 
 .chipAqi {
-  bottom: 16px;
+  bottom: 14px;
   left: 10px;
 }
 
-.chipIconWrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+.chip3dIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
-.chipIconWrap.droplet {
-  color: #54a6ff;
-  box-shadow: 0 0 12px rgba(84, 166, 255, 0.4);
+.chip3dIcon.droplet {
+  filter: drop-shadow(0 2px 6px rgba(59, 157, 248, 0.5));
 }
 
-.chipIconWrap.leaf {
-  color: #34d399;
-  box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+.chip3dIcon.leaf {
+  filter: drop-shadow(0 2px 6px rgba(46, 213, 115, 0.5));
 }
 
 .chipMeta {
@@ -200,27 +246,28 @@
 }
 
 .chipTitle {
-  font-size: 0.72rem;
-  color: rgba(225, 235, 255, 0.78);
+  font-size: 0.76rem;
+  color: rgba(255, 255, 255, 0.85);
   font-weight: 400;
 }
 
 .chipValue {
-  font-size: 0.92rem;
-  font-weight: 600;
+  font-size: 0.96rem;
+  font-weight: 700;
   color: #fff;
   letter-spacing: -0.01em;
 }
 
 .chipTitle.good {
-  color: #6ee7b7;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 400;
 }
 
 /* Brand Pane Bottom Typography */
 .brandBottom {
   display: flex;
   flex-direction: column;
+  z-index: 2;
 }
 
 .brandHeadline {
@@ -232,14 +279,14 @@
 }
 
 .brandAccent {
-  color: #8da4ff;
+  color: #5b93ff;
   display: block;
 }
 
 .brandDesc {
   margin-top: 8px;
   font-size: 0.85rem;
-  color: rgba(225, 235, 255, 0.78);
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.45;
   max-width: 320px;
 }
